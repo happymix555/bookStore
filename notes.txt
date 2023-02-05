@@ -1,0 +1,11 @@
+BookStore
+
+- requirements
+
+    - add book.
+    - remove book.
+    - rent book.
+    - return book.
+    - view total revenue in date range.
+    - view the most popular book list.
+
