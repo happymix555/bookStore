@@ -22,6 +22,7 @@ BookStore
         - bookFineRateFloat: float
         - bookIdInt: int
         - numberOfRent: int
+        - availableStatus: bool
 
     - BookStorage
         - bookList: list
@@ -36,11 +37,15 @@ BookStore
         - actualReturnDate: date
         - rentedBookIdInt: int
         - thisRentRevenueFloat: float
+        - totalRentPrice: float
+        - totalFine: float
+        - bookRentPricePerDay: float
         - calculateRentPrice()
         - calculateFine()
+        - calculateRevenue()
 
     - RentRecordStorage
-        - RentRecordList: list
-        - RentBook()
-        - ReturnBook()
+        - rentRecordList: list
+        - rentBook()
+        - returnBook()
 
