@@ -1,11 +1,46 @@
 BookStore
 
-- requirements
+    - requirements
+        - add book.
+        - remove book.
+        - rent book.
+        - return book.
+        - view total revenue in date range.
+        - view the most popular book list.
 
-    - add book.
-    - remove book.
-    - rent book.
-    - return book.
-    - view total revenue in date range.
-    - view the most popular book list.
+- class plan
+
+    - BookStore
+        - BookStorage
+        - RentRecordStorage
+        - calculateTotalRevenueInDateRange()
+        - viewTheMostPopularBook()
+
+    - Book
+        - bookNameStr: string
+        - bookPricePerDayFloat: float
+        - bookFineRateFloat: float
+        - bookIdInt: int
+        - numberOfRent: int
+
+    - BookStorage
+        - bookList: list
+        - addBook()
+        - removeBook()
+    
+    - RentRecord
+        - renterNameStr: sting
+        - rentDate: date
+        - expectedReturnDate: date
+        - rentRecordIdInt: int
+        - actualReturnDate: date
+        - rentedBookIdInt: int
+        - thisRentRevenueFloat: float
+        - calculateRentPrice()
+        - calculateFine()
+
+    - RentRecordStorage
+        - RentRecordList: list
+        - RentBook()
+        - ReturnBook()
 
