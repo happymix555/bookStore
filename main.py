@@ -15,7 +15,22 @@ def addBook():
 
 def removeBook():
     global bookStore, state
-    
+    bookCountInt = 1
+    allBookIdList = []
+    for book in bookStore.bookStorage.bookList:
+        allBookIdList.append( book.bookIdInt )
+        print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )
+    bookIdToBeRemovedInt = input( 'Book ID to be removed: ' )
+    if int(bookIdToBeRemovedInt) not in allBookIdList:
+        print( 'This book was not found in our store.' )
+        state = 'start'
+    else:
+        bookStore.bookStorage.removeBook( int(bookIdToBeRemovedInt) )
+        print( 'Book was removed successfully.' )
+        print( 'This is all book left in our store.' )
+        for book in bookStore.bookStorage.bookList:
+            print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )
+        state = 'start'
 
 #main loop
 
@@ -39,7 +54,9 @@ while 1:
         if state not in [ '1', '2', '3', '4', '5', '6']:
             print( 'Incorrect Choice.' )
             state = 'waitStartInput'
-
-        
+    
     elif state == '1':
         addBook()
+    
+    elif state == '2':
+        removeBook()
