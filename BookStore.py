@@ -13,7 +13,7 @@ class BookStore:
         thisTotalRevenue = 0
         for record in self.rentRecordStorage:
             if record.actualReturnDate != None:
-                if ( record.rentDate - startDate ).days >= 0 and ( record.endDate - record.actualReturnDate ).days >= 0:
+                if ( record.rentDate - startDate ) >= 0 and ( record.endDate - record.actualReturnDate ) >= 0:
                     thisTotalRevenue += record.thisRentRevenueFloat
         return thisTotalRevenue
 

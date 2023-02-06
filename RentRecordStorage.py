@@ -11,16 +11,20 @@ class RentRecordStorage:
         thisRentRecord = RentRecord( renterNameStr, rentDate, expectedReturnDate, 
         rentedBookIdInt, bookStorageObject, rentRecordStorageObject )
         self.rentRecordList.append( thisRentRecord )
-        for book in bookStorageObject:
+        for book in bookStorageObject.bookList:
             if book.bookIdInt == rentedBookIdInt:
                 book.numberOfRent += 1
+                print(book.bookNameStr)
 
     def returnBook( self, actualReturnDate, rentRecordIdInt, bookStorageObject ):
+        print( 'in returnBook function.' )
         for record in self.rentRecordList:
+            # print( record.rentRecordIdInt )
             if record.rentRecordIdInt == rentRecordIdInt:
-                for book in self.bookStorageObject:
-                    if book.bookIdInt == record.rentBookIdInt:
+                for book in bookStorageObject.bookList:
+                    if book.bookIdInt == record.rentedBookIdInt:
                         book.availableStatus = True
+                        print( record.bookRentPricePerDayFloat )
                         record.calculateFine( actualReturnDate )
                         record.calculateRevenue()
                         break

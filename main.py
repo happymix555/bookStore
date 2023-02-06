@@ -1,5 +1,32 @@
 from BookStore import BookStore
 
+from datetime import datetime
+from datetime import date
+
+
+
+def printAllBookInStore():
+    global bookStore
+    bookCountInt = 1
+    for book in bookStore.bookStorage.bookList:
+        print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )
+        bookCountInt += 1
+
+def stringToRentDateFormat( userInputString ):
+    # userInPutString will be in format YYYY-M-D
+    stringToList = userInputString.split('-')
+    year = stringToList[0]
+    month = stringToList[1]
+    day = stringToList[2]
+    return year, month, day
+
+def printAllRentRecord():
+    global bookStore
+    rentRecordCountInt = 1
+    for rentRecord in bookStore.rentRecordStorage.rentRecordList:
+        print( f'{rentRecordCountInt}. Renter Name: {rentRecord.renterNameStr} Rent Date: {rentRecord.rentDate} Expected Return Date: {rentRecord.expectedReturnDate} Actual return date: {rentRecord.actualReturnDate} Total Revenue: {rentRecord.thisRentRevenueFloat} Rent Id: {rentRecord.rentRecordIdInt}' )
+        rentRecordCountInt += 1
+
 def addBook():
     global bookStore, state
     thisBookNameStr = input( 'Book name: ' )
@@ -13,6 +40,9 @@ def addBook():
         print( '\n' )
     state = 'start'
 
+    if thisBookNameStr == 'x':
+        state = 'start'
+
 def removeBook():
     global bookStore, state
     bookCountInt = 1
@@ -20,6 +50,7 @@ def removeBook():
     for book in bookStore.bookStorage.bookList:
         allBookIdList.append( book.bookIdInt )
         print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )
+        bookCountInt += 1
     bookIdToBeRemovedInt = input( 'Book ID to be removed: ' )
     if int(bookIdToBeRemovedInt) not in allBookIdList:
         print( 'This book was not found in our store.' )
@@ -28,9 +59,44 @@ def removeBook():
         bookStore.bookStorage.removeBook( int(bookIdToBeRemovedInt) )
         print( 'Book was removed successfully.' )
         print( 'This is all book left in our store.' )
-        for book in bookStore.bookStorage.bookList:
-            print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )
+        printAllBookInStore()
         state = 'start'
+
+    if bookIdToBeRemovedInt == 'x':
+        state = 'start'
+
+def rentBook():
+    global bookStore, state
+    printAllBookInStore()
+    rentBookIdInt = input( 'Book ID to rent: ' )
+    renterName = input( 'Renter name: ' )
+    rentDate = input( '(YYYY-M-D)Rent Date:' )
+    expectedReturnDate = input( '(YYYY-M-D)Expected Return Date:' )
+    rentDateObject = datetime.strptime(rentDate, '%Y-%m-%d')
+    bookStore.rentRecordStorage.rentBook( renterName, rentDateObject, 
+    datetime.strptime(expectedReturnDate, '%Y-%m-%d'), int(rentBookIdInt), bookStore.bookStorage, bookStore.rentRecordStorage )
+    print( 'Rent successfully.' )
+    printAllRentRecord()
+    state = 'start'
+
+    if rentBookIdInt == 'x':
+        state = 'start'
+
+def returnBook():
+    global bookStore, state
+    printAllRentRecord()
+    rentIdToBeReturn = input( 'Rent ID to return: ' )
+    actualReturnDate = input( '(YYYY-M-D)Return date: ' )
+    bookStore.rentRecordStorage.returnBook( datetime.strptime(actualReturnDate, '%Y-%m-%d'), int(rentIdToBeReturn), bookStore.bookStorage )
+    print( 'Return successfully.' )
+    printAllRentRecord()
+    state = 'start'
+
+    if rentIdToBeReturn == 'x':
+        state = 'start'
+
+
+
 
 #main loop
 
@@ -60,3 +126,9 @@ while 1:
     
     elif state == '2':
         removeBook()
+
+    elif state == '3':
+        rentBook()
+
+    elif state == '4':
+        returnBook()
