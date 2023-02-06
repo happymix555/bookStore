@@ -3,7 +3,21 @@ from BookStore import BookStore
 from datetime import datetime
 from datetime import date
 
-
+def allowOnlyNumber( userInput ):
+    try:
+        float( userInput )
+        return True
+    except:
+        print( 'Input can only be a number.' )
+        return False
+    
+def allowOnlyPositiveNumber( userInput ):
+    if allowOnlyNumber( userInput ):
+        if float( userInput ) >= 0:
+            return True
+        else:
+            print( 'Cannot input negative number.' )
+            return False
 
 def printAllBookInStore():
     global bookStore
@@ -11,6 +25,14 @@ def printAllBookInStore():
     for book in bookStore.bookStorage.bookList:
         print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )
         bookCountInt += 1
+
+def printAllAvailableBook():
+    global bookStore
+    bookCountInt = 1
+    for book in bookStore.bookStorage.bookList:
+        if book.availableStatus == True:
+            print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )
+            bookCountInt += 1
 
 def stringToRentDateFormat( userInputString ):
     # userInPutString will be in format YYYY-M-D
@@ -27,20 +49,35 @@ def printAllRentRecord():
         print( f'{rentRecordCountInt}. Renter Name: {rentRecord.renterNameStr} Rent Date: {rentRecord.rentDate} Expected Return Date: {rentRecord.expectedReturnDate} Actual return date: {rentRecord.actualReturnDate} Total Revenue: {rentRecord.thisRentRevenueFloat} Rent Id: {rentRecord.rentRecordIdInt}' )
         rentRecordCountInt += 1
 
+def printUnreturnedRentRecord():
+    global bookStore
+    rentRecordCountInt = 1
+    for rentRecord in bookStore.rentRecordStorage.rentRecordList:
+        if rentRecord.actualReturnDate == None:
+            print( f'{rentRecordCountInt}. Renter Name: {rentRecord.renterNameStr} Rent Date: {rentRecord.rentDate} Expected Return Date: {rentRecord.expectedReturnDate} Actual return date: {rentRecord.actualReturnDate} Total Revenue: {rentRecord.thisRentRevenueFloat} Rent Id: {rentRecord.rentRecordIdInt}' )
+            rentRecordCountInt += 1
+
 def addBook():
     global bookStore, state
     thisBookNameStr = input( 'Book name: ' )
-    thisBookPricePerDayFloat = input( 'Book rent price per Day: ' )
-    thisBookFineRateFloat = input( 'Book fine rate: ' )
-    bookStore.bookStorage.addBook( thisBookNameStr, float( thisBookPricePerDayFloat ), float( thisBookFineRateFloat ),
-    bookStore.bookStorage )
-    for book in bookStore.bookStorage.bookList:
-        print( book.bookNameStr )
-        print( book.bookIdInt )
-        print( '\n' )
-    state = 'start'
 
     if thisBookNameStr == 'x':
+        state = 'start'
+    
+    thisBookPricePerDayFloat = input( 'Book rent price per Day: ' )
+    if allowOnlyPositiveNumber( thisBookPricePerDayFloat ):
+        thisBookFineRateFloat = input( 'Book fine rate: ' )
+        if allowOnlyPositiveNumber( thisBookFineRateFloat ):
+            bookStore.bookStorage.addBook( thisBookNameStr, float( thisBookPricePerDayFloat ), float( thisBookFineRateFloat ),
+            bookStore.bookStorage )
+            for book in bookStore.bookStorage.bookList:
+                print( book.bookNameStr )
+                print( book.bookIdInt )
+                print( '\n' )
+            state = 'start'
+        else:
+            state = 'start'
+    else:
         state = 'start'
 
 def removeBook():
@@ -67,7 +104,7 @@ def removeBook():
 
 def rentBook():
     global bookStore, state
-    printAllBookInStore()
+    printAllAvailableBook()
     rentBookIdInt = input( 'Book ID to rent: ' )
     renterName = input( 'Renter name: ' )
     rentDate = input( '(YYYY-M-D)Rent Date:' )
@@ -84,7 +121,7 @@ def rentBook():
 
 def returnBook():
     global bookStore, state
-    printAllRentRecord()
+    printUnreturnedRentRecord()
     rentIdToBeReturn = input( 'Rent ID to return: ' )
     actualReturnDate = input( '(YYYY-M-D)Return date: ' )
     bookStore.rentRecordStorage.returnBook( datetime.strptime(actualReturnDate, '%Y-%m-%d'), int(rentIdToBeReturn), bookStore.bookStorage )
@@ -95,12 +132,40 @@ def returnBook():
     if rentIdToBeReturn == 'x':
         state = 'start'
 
+def viewTotalRevenueInDateRange():
+    global bookStore, state
+    startDate = input( '(YYYY-M-D)Start date: ' )
+    endDate = input( '(YYYY-M-D)End date: ' )
+    revenueInThisDateRange = bookStore.calculateTotalRevenueInDateRange( datetime.strptime(startDate, '%Y-%m-%d'), datetime.strptime(endDate, '%Y-%m-%d') )
+    print( f'Total Revenue in this date range is: {revenueInThisDateRange}' )
+    state = 'start'
 
+def viewTheMostPopularBook():
+    global bookStore, state
+    bookNameList, bookNumberOfRentList = bookStore.viewTheMostPopularBook()
+    print( bookNameList )
+    print( bookNumberOfRentList )
+    state = 'start'
 
 
 #main loop
 
 bookStore = BookStore()
+
+
+#adding book to store
+bookStore.bookStorage.addBook( 'book1', float( 10 ), float( 1.5 ),
+    bookStore.bookStorage )
+bookStore.bookStorage.addBook( 'book2', float( 15 ), float( 1.5 ),
+    bookStore.bookStorage )
+bookStore.bookStorage.addBook( 'book3', float( 20 ), float( 1.5 ),
+    bookStore.bookStorage )
+
+# #renting book
+# bookStore.rentRecordStorage.rentBook( 'happymix', date(2023-2-3), 
+#     date(2023-2-4), 0, bookStore.bookStorage, bookStore.rentRecordStorage )
+
+
 
 state = 'start'
 while 1:
@@ -132,3 +197,9 @@ while 1:
 
     elif state == '4':
         returnBook()
+
+    elif state == '5':
+        viewTotalRevenueInDateRange()
+
+    elif state == '6':
+        viewTheMostPopularBook()

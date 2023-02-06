@@ -11,16 +11,16 @@ class BookStore:
 
     def calculateTotalRevenueInDateRange( self, startDate: date, endDate: date ):
         thisTotalRevenue = 0
-        for record in self.rentRecordStorage:
+        for record in self.rentRecordStorage.rentRecordList:
             if record.actualReturnDate != None:
-                if ( record.rentDate - startDate ) >= 0 and ( record.endDate - record.actualReturnDate ) >= 0:
+                if ( record.rentDate - startDate ).days >= 0 and ( endDate - record.actualReturnDate ).days >= 0:
                     thisTotalRevenue += record.thisRentRevenueFloat
         return thisTotalRevenue
 
     def viewTheMostPopularBook( self ):
         allBookList = []
         allNumberOfRentList = []
-        for book in self.bookStorage:
+        for book in self.bookStorage.bookList:
             if book.bookNameStr not in allBookList:
                 allBookList.append(book.bookNameStr)
                 allNumberOfRentList.append(book.numberOfRent)
@@ -30,4 +30,8 @@ class BookStore:
         theMostPopularBookNameList = []
         theMostPopularBookNumberOfRentList = []
         theMostPopularBookNumberOfRentList, theMostPopularBookNameList = zip(*sorted(zip(allNumberOfRentList, allBookList)))
+        theMostPopularBookNumberOfRentList = list(theMostPopularBookNumberOfRentList)
+        theMostPopularBookNumberOfRentList.reverse()
+        theMostPopularBookNameList = list(theMostPopularBookNameList)
+        theMostPopularBookNameList.reverse()
         return theMostPopularBookNameList, theMostPopularBookNumberOfRentList
