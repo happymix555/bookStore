@@ -26,7 +26,7 @@ class RentRecord:
         bookList = bookStorageObject.bookList
         for book in bookList:
             if book.bookIdInt == self.rentedBookIdInt:
-                print( 'in calculateRentPrice function.' )
+                # print( 'in calculateRentPrice function.' )
                 # self.bookRentPricePerDayFloat = book.bookPricePerDayFloat
                 # print( self.bookRentPricePerDayFloat )
                 print( book.bookPricePerDayFloat ) 
@@ -36,7 +36,7 @@ class RentRecord:
                 
 
     def calculateFine( self, actualReturnDate, bookStorageObject ):
-        print( 'in calculateFine function' )
+        # print( 'in calculateFine function' )
         for book in bookStorageObject.bookList:
             if book.bookIdInt == self.rentedBookIdInt:
                 self.bookFineRateFloat = book.bookFineRateFloat
@@ -45,12 +45,12 @@ class RentRecord:
         self.actualReturnDate = actualReturnDate
         lateReturnInDate = self.actualReturnDate - self.expectedReturnDate
         lateReturnInDay = lateReturnInDate.days
-        print( lateReturnInDay )
-        print( self.bookRentPricePerDayFloat )
+        # print( lateReturnInDay )
+        # print( self.bookRentPricePerDayFloat )
         self.totalFine = 0.0
         if lateReturnInDay >= 0:
             self.totalFine = lateReturnInDay * self.bookRentPricePerDayFloat * self.bookFineRateFloat
-        print( self.totalFine )
+        # print( self.totalFine )
 
     def calculateRevenue( self ):
         self.thisRentRevenueFloat = self.totalRentPrice + self.totalFine

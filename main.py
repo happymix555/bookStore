@@ -6,19 +6,32 @@ from InvalidInputPrevention import *
 
 
 def printAllBookInStore():
+    ''' Print all book in our store.
+    '''
     global bookStore
     bookCountInt = 1
+
+    # loop to get each book object.
     for book in bookStore.bookStorage.bookList:
+        
+        # print various information about this book.
         print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )
+        print( '\n' )
         bookCountInt += 1
 
 def printAllAvailableBook():
+    ''' Print all book in our store that is currently available for rent.
+    '''
     global bookStore
     bookCountInt = 1
+
+    # loop to get each book object.
     for book in bookStore.bookStorage.bookList:
-        print( book.availableStatus )
+
+        # check 
         if book.availableStatus == True:
             print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )
+            print( '\n' )
             bookCountInt += 1
 
 def stringToRentDateFormat( userInputString ):
@@ -35,6 +48,7 @@ def printAllRentRecord():
     for rentRecord in bookStore.rentRecordStorage.rentRecordList:
         print( f'{ rentRecordCountInt }. Renter Name: { rentRecord.renterNameStr } Rent Date: { rentRecord.rentDate } Expected Return Date: {rentRecord.expectedReturnDate} Actual return date: {rentRecord.actualReturnDate} Total Revenue: {rentRecord.thisRentRevenueFloat}' )
         print( f'Rent price: { rentRecord.totalRentPrice } Fine: { rentRecord.totalFine } Rent Id: { rentRecord.rentRecordIdInt }' )
+        print( '\n' )
         rentRecordCountInt += 1
 
 def printUnreturnedRentRecord():
@@ -43,7 +57,8 @@ def printUnreturnedRentRecord():
     for rentRecord in bookStore.rentRecordStorage.rentRecordList:
         if rentRecord.actualReturnDate == None:
             thisBookObject = fineBookObjectById( bookStore, rentRecord.rentedBookIdInt )
-            print( f'{rentRecordCountInt}. Renter Name: {rentRecord.renterNameStr} Book Name:{ thisBookObject.bookNameStr } Rent Date: {rentRecord.rentDate} Expected Return Date: {rentRecord.expectedReturnDate} Actual return date: {rentRecord.actualReturnDate} Total Revenue: {rentRecord.thisRentRevenueFloat} Rent Id: {rentRecord.rentRecordIdInt}' )
+            print( f'{rentRecordCountInt}. Renter Name: {rentRecord.renterNameStr} Book Name: { thisBookObject.bookNameStr } Rent Date: {rentRecord.rentDate} Expected Return Date: {rentRecord.expectedReturnDate} Actual return date: {rentRecord.actualReturnDate} Total Revenue: {rentRecord.thisRentRevenueFloat} Rent Id: {rentRecord.rentRecordIdInt}' )
+            print( '\n' )
             rentRecordCountInt += 1
 
 def addBook():

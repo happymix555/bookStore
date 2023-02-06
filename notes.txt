@@ -1,3 +1,14 @@
+Current Problems
+
+    - same book name but different price.
+    - can add book without a name in it.
+    - if add book without a name, bookId do not increase.
+    - user interaction is not good.
+        - if user input invalid input, user have to provide the input allover again.
+        - user must select item based on their ID but should select it based on number 
+          in the front instead.
+
+
 BookStore
 
     - requirements

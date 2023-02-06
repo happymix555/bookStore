@@ -15,19 +15,23 @@ class RentRecordStorage:
             if book.bookIdInt == rentedBookIdInt:
                 book.numberOfRent += 1
                 book.availableStatus = False
-                print(book.bookNameStr)
+                # print(book.bookNameStr)
 
     def returnBook( self, actualReturnDate, rentRecordIdInt, bookStorageObject ):
-        print( 'in returnBook function.' )
+        # print( 'in returnBook function.' )
         for record in self.rentRecordList:
             # print( record.rentRecordIdInt )
-            if record.rentRecordIdInt == rentRecordIdInt:
-                for book in bookStorageObject.bookList:
-                    if book.bookIdInt == record.rentedBookIdInt:
-                        book.availableStatus = True
-                        print( record.bookRentPricePerDayFloat )
-                        record.calculateFine( actualReturnDate, bookStorageObject )
-                        record.calculateRentPrice( bookStorageObject )
-                        record.calculateRevenue()
-                        break
+            if record.rentRecordIdInt != rentRecordIdInt:
+                continue
+
+            for book in bookStorageObject.bookList:
+                if book.bookIdInt != record.rentedBookIdInt:
+                    continue
+
+                book.availableStatus = True
+                # print( record.bookRentPricePerDayFloat )
+                record.calculateFine( actualReturnDate, bookStorageObject )
+                record.calculateRentPrice( bookStorageObject )
+                record.calculateRevenue()
+                break
 
