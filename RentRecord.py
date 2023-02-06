@@ -15,7 +15,7 @@ class RentRecord:
         self.bookRentPricePerDayFloat = None
         self.bookFineRateFloat = None
         self.totalRentPrice = None
-        self.calculateRentPrice( bookStorageObject )
+        # self.calculateRentPrice( bookStorageObject )
         self.rentRecordIdInt = len( rentRecordStorageObject.rentRecordList )
         self.actualReturnDate = None
         self.totalFine = None
@@ -27,23 +27,29 @@ class RentRecord:
         for book in bookList:
             if book.bookIdInt == self.rentedBookIdInt:
                 print( 'in calculateRentPrice function.' )
-                self.bookRentPricePerDayFloat = book.bookPricePerDayFloat
-                print( self.bookRentPricePerDayFloat )
+                # self.bookRentPricePerDayFloat = book.bookPricePerDayFloat
+                # print( self.bookRentPricePerDayFloat )
                 print( book.bookPricePerDayFloat ) 
-                numberOfDayRentedInDate = self.expectedReturnDate - self.rentDate
+                numberOfDayRentedInDate = self.actualReturnDate - self.rentDate
                 numberOfDayRentedInDay = numberOfDayRentedInDate.days
                 self.totalRentPrice = numberOfDayRentedInDay * self.bookRentPricePerDayFloat
-                book.availableStatus = False
-                self.bookFineRateFloat = book.bookFineRateFloat
+                
 
-    def calculateFine( self, actualReturnDate ):
+    def calculateFine( self, actualReturnDate, bookStorageObject ):
         print( 'in calculateFine function' )
+        for book in bookStorageObject.bookList:
+            if book.bookIdInt == self.rentedBookIdInt:
+                self.bookFineRateFloat = book.bookFineRateFloat
+                self.bookRentPricePerDayFloat = book.bookPricePerDayFloat
+                break
         self.actualReturnDate = actualReturnDate
         lateReturnInDate = self.actualReturnDate - self.expectedReturnDate
         lateReturnInDay = lateReturnInDate.days
         print( lateReturnInDay )
         print( self.bookRentPricePerDayFloat )
-        self.totalFine = lateReturnInDay * self.bookRentPricePerDayFloat * self.bookFineRateFloat
+        self.totalFine = 0.0
+        if lateReturnInDay >= 0:
+            self.totalFine = lateReturnInDay * self.bookRentPricePerDayFloat * self.bookFineRateFloat
         print( self.totalFine )
 
     def calculateRevenue( self ):

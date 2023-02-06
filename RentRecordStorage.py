@@ -14,6 +14,7 @@ class RentRecordStorage:
         for book in bookStorageObject.bookList:
             if book.bookIdInt == rentedBookIdInt:
                 book.numberOfRent += 1
+                book.availableStatus = False
                 print(book.bookNameStr)
 
     def returnBook( self, actualReturnDate, rentRecordIdInt, bookStorageObject ):
@@ -25,7 +26,8 @@ class RentRecordStorage:
                     if book.bookIdInt == record.rentedBookIdInt:
                         book.availableStatus = True
                         print( record.bookRentPricePerDayFloat )
-                        record.calculateFine( actualReturnDate )
+                        record.calculateFine( actualReturnDate, bookStorageObject )
+                        record.calculateRentPrice( bookStorageObject )
                         record.calculateRevenue()
                         break
 

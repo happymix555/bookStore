@@ -2,22 +2,8 @@ from BookStore import BookStore
 
 from datetime import datetime
 from datetime import date
+from InvalidInputPrevention import *
 
-def allowOnlyNumber( userInput ):
-    try:
-        float( userInput )
-        return True
-    except:
-        print( 'Input can only be a number.' )
-        return False
-    
-def allowOnlyPositiveNumber( userInput ):
-    if allowOnlyNumber( userInput ):
-        if float( userInput ) >= 0:
-            return True
-        else:
-            print( 'Cannot input negative number.' )
-            return False
 
 def printAllBookInStore():
     global bookStore
@@ -30,6 +16,7 @@ def printAllAvailableBook():
     global bookStore
     bookCountInt = 1
     for book in bookStore.bookStorage.bookList:
+        print( book.availableStatus )
         if book.availableStatus == True:
             print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )
             bookCountInt += 1
@@ -46,15 +33,17 @@ def printAllRentRecord():
     global bookStore
     rentRecordCountInt = 1
     for rentRecord in bookStore.rentRecordStorage.rentRecordList:
-        print( f'{rentRecordCountInt}. Renter Name: {rentRecord.renterNameStr} Rent Date: {rentRecord.rentDate} Expected Return Date: {rentRecord.expectedReturnDate} Actual return date: {rentRecord.actualReturnDate} Total Revenue: {rentRecord.thisRentRevenueFloat} Rent Id: {rentRecord.rentRecordIdInt}' )
+        print( f'{ rentRecordCountInt }. Renter Name: { rentRecord.renterNameStr } Rent Date: { rentRecord.rentDate } Expected Return Date: {rentRecord.expectedReturnDate} Actual return date: {rentRecord.actualReturnDate} Total Revenue: {rentRecord.thisRentRevenueFloat}' )
+        print( f'Rent price: { rentRecord.totalRentPrice } Fine: { rentRecord.totalFine } Rent Id: { rentRecord.rentRecordIdInt }' )
         rentRecordCountInt += 1
 
 def printUnreturnedRentRecord():
-    global bookStore
+    global bookStore4
     rentRecordCountInt = 1
     for rentRecord in bookStore.rentRecordStorage.rentRecordList:
         if rentRecord.actualReturnDate == None:
-            print( f'{rentRecordCountInt}. Renter Name: {rentRecord.renterNameStr} Rent Date: {rentRecord.rentDate} Expected Return Date: {rentRecord.expectedReturnDate} Actual return date: {rentRecord.actualReturnDate} Total Revenue: {rentRecord.thisRentRevenueFloat} Rent Id: {rentRecord.rentRecordIdInt}' )
+            thisBookObject = fineBookObjectById( bookStore, rentRecord.rentedBookIdInt )
+            print( f'{rentRecordCountInt}. Renter Name: {rentRecord.renterNameStr} Book Name:{ thisBookObject.bookNameStr } Rent Date: {rentRecord.rentDate} Expected Return Date: {rentRecord.expectedReturnDate} Actual return date: {rentRecord.actualReturnDate} Total Revenue: {rentRecord.thisRentRevenueFloat} Rent Id: {rentRecord.rentRecordIdInt}' )
             rentRecordCountInt += 1
 
 def addBook():
@@ -65,9 +54,9 @@ def addBook():
         state = 'start'
     
     thisBookPricePerDayFloat = input( 'Book rent price per Day: ' )
-    if allowOnlyPositiveNumber( thisBookPricePerDayFloat ):
+    if allowOnlyPositiveFloat( thisBookPricePerDayFloat ):
         thisBookFineRateFloat = input( 'Book fine rate: ' )
-        if allowOnlyPositiveNumber( thisBookFineRateFloat ):
+        if allowOnlyPositiveFloat( thisBookFineRateFloat ):
             bookStore.bookStorage.addBook( thisBookNameStr, float( thisBookPricePerDayFloat ), float( thisBookFineRateFloat ),
             bookStore.bookStorage )
             for book in bookStore.bookStorage.bookList:
@@ -75,10 +64,6 @@ def addBook():
                 print( book.bookIdInt )
                 print( '\n' )
             state = 'start'
-        else:
-            state = 'start'
-    else:
-        state = 'start'
 
 def removeBook():
     global bookStore, state
@@ -89,15 +74,15 @@ def removeBook():
         print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )
         bookCountInt += 1
     bookIdToBeRemovedInt = input( 'Book ID to be removed: ' )
-    if int(bookIdToBeRemovedInt) not in allBookIdList:
-        print( 'This book was not found in our store.' )
-        state = 'start'
-    else:
-        bookStore.bookStorage.removeBook( int(bookIdToBeRemovedInt) )
-        print( 'Book was removed successfully.' )
-        print( 'This is all book left in our store.' )
-        printAllBookInStore()
-        state = 'start'
+    if allowOnlyPositiveInt( bookIdToBeRemovedInt ):
+        if int( bookIdToBeRemovedInt ) not in allBookIdList:
+            print( 'This book was not found in our store.' )
+        else:
+            bookStore.bookStorage.removeBook( int(bookIdToBeRemovedInt) )
+            print( 'Book was removed successfully.' )
+            print( 'This is all book left in our store.' )
+            printAllBookInStore()
+            state = 'start'
 
     if bookIdToBeRemovedInt == 'x':
         state = 'start'
@@ -105,16 +90,27 @@ def removeBook():
 def rentBook():
     global bookStore, state
     printAllAvailableBook()
+    allBookAvailableIdList = []
+    for book in bookStore.bookStorage.bookList:
+        if book.availableStatus == True:
+            allBookAvailableIdList.append( book.bookIdInt )
     rentBookIdInt = input( 'Book ID to rent: ' )
-    renterName = input( 'Renter name: ' )
-    rentDate = input( '(YYYY-M-D)Rent Date:' )
-    expectedReturnDate = input( '(YYYY-M-D)Expected Return Date:' )
-    rentDateObject = datetime.strptime(rentDate, '%Y-%m-%d')
-    bookStore.rentRecordStorage.rentBook( renterName, rentDateObject, 
-    datetime.strptime(expectedReturnDate, '%Y-%m-%d'), int(rentBookIdInt), bookStore.bookStorage, bookStore.rentRecordStorage )
-    print( 'Rent successfully.' )
-    printAllRentRecord()
-    state = 'start'
+    if allowOnlyPositiveInt( rentBookIdInt ):
+        if int( rentBookIdInt ) not in allBookAvailableIdList:
+            print( 'This book dose not exist.' )
+        else:
+            renterName = input( 'Renter name: ' )
+            rentDate = input( '(YYYY-M-D)Rent Date:' )
+            if checkValidDateFormat( rentDate ):
+                expectedReturnDate = input( '(YYYY-M-D)Expected Return Date:' )
+                if checkValidDateFormat( expectedReturnDate ):
+                    if checkLaterDate( datetime.strptime(rentDate, '%Y-%m-%d'), datetime.strptime(expectedReturnDate, '%Y-%m-%d') ):
+                        rentDateObject = datetime.strptime(rentDate, '%Y-%m-%d')
+                        bookStore.rentRecordStorage.rentBook( renterName, rentDateObject, 
+                        datetime.strptime(expectedReturnDate, '%Y-%m-%d'), int(rentBookIdInt), bookStore.bookStorage, bookStore.rentRecordStorage )
+                        print( 'Rent successfully.' )
+                        printAllRentRecord()
+                        state = 'start'
 
     if rentBookIdInt == 'x':
         state = 'start'
@@ -122,29 +118,52 @@ def rentBook():
 def returnBook():
     global bookStore, state
     printUnreturnedRentRecord()
-    rentIdToBeReturn = input( 'Rent ID to return: ' )
-    actualReturnDate = input( '(YYYY-M-D)Return date: ' )
-    bookStore.rentRecordStorage.returnBook( datetime.strptime(actualReturnDate, '%Y-%m-%d'), int(rentIdToBeReturn), bookStore.bookStorage )
-    print( 'Return successfully.' )
-    printAllRentRecord()
-    state = 'start'
-
-    if rentIdToBeReturn == 'x':
+    allUncloseRentRecordList = []
+    for rentRecord in bookStore.rentRecordStorage.rentRecordList:
+        if rentRecord.actualReturnDate == None:
+            allUncloseRentRecordList.append( rentRecord.rentRecordIdInt )
+    if allUncloseRentRecordList != []:
+        rentIdToBeReturn = input( 'Rent ID to return: ' )
+        if allowOnlyPositiveInt( rentIdToBeReturn ):
+            if int( rentIdToBeReturn ) not in allUncloseRentRecordList:
+                print( 'This rent record was not found in our store.' )
+            else:
+                rentRecordObject = findRecordObjectById( bookStore, int( rentIdToBeReturn ) )
+                rentDate = rentRecordObject.rentDate
+                actualReturnDate = input( '(YYYY-M-D)Return date: ' )
+                if checkValidDateFormat( actualReturnDate ):
+                    if checkLaterDate( rentDate, datetime.strptime(actualReturnDate, '%Y-%m-%d') ):
+                        bookStore.rentRecordStorage.returnBook( datetime.strptime(actualReturnDate, '%Y-%m-%d'), int(rentIdToBeReturn), bookStore.bookStorage )
+                        print( 'Return successfully.' )
+                        printAllRentRecord()
+                        state = 'start'
+    else:
+        print( 'There is no rent record at this time.' )
         state = 'start'
+
+    # if rentIdToBeReturn == 'x':
+    #     state = 'start'
 
 def viewTotalRevenueInDateRange():
     global bookStore, state
     startDate = input( '(YYYY-M-D)Start date: ' )
-    endDate = input( '(YYYY-M-D)End date: ' )
-    revenueInThisDateRange = bookStore.calculateTotalRevenueInDateRange( datetime.strptime(startDate, '%Y-%m-%d'), datetime.strptime(endDate, '%Y-%m-%d') )
-    print( f'Total Revenue in this date range is: {revenueInThisDateRange}' )
-    state = 'start'
+    if checkValidDateFormat( startDate ):
+        endDate = input( '(YYYY-M-D)End date: ' )
+        if checkValidDateFormat( endDate ):
+            if checkLaterDate( datetime.strptime(startDate, '%Y-%m-%d'), datetime.strptime(endDate, '%Y-%m-%d') ):
+                revenueInThisDateRange = bookStore.calculateTotalRevenueInDateRange( datetime.strptime(startDate, '%Y-%m-%d'), datetime.strptime(endDate, '%Y-%m-%d') )
+                print( f'Total Revenue in this date range is: {revenueInThisDateRange}' )
+                state = 'start'
 
 def viewTheMostPopularBook():
     global bookStore, state
     bookNameList, bookNumberOfRentList = bookStore.viewTheMostPopularBook()
-    print( bookNameList )
-    print( bookNumberOfRentList )
+    popularityNumberInt = 1
+    for bookIndex in range( len( bookNameList ) ):
+        print( f'{ popularityNumberInt }. Book name: { bookNameList[ bookIndex ] }, Number of rent times: { bookNumberOfRentList[ bookIndex ] }' )
+        popularityNumberInt += 1
+    # print( bookNameList )
+    # print( bookNumberOfRentList )
     state = 'start'
 
 
