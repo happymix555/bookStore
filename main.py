@@ -1,7 +1,21 @@
 from BookStore import BookStore
 
 def addBook():
-    pass
+    global bookStore, state
+    thisBookNameStr = input( 'Book name: ' )
+    thisBookPricePerDayFloat = input( 'Book rent price per Day: ' )
+    thisBookFineRateFloat = input( 'Book fine rate: ' )
+    bookStore.bookStorage.addBook( thisBookNameStr, float( thisBookPricePerDayFloat ), float( thisBookFineRateFloat ),
+    bookStore.bookStorage )
+    for book in bookStore.bookStorage.bookList:
+        print( book.bookNameStr )
+        print( book.bookIdInt )
+        print( '\n' )
+    state = 'start'
+
+def removeBook():
+    global bookStore, state
+    
 
 #main loop
 
@@ -21,7 +35,7 @@ while 1:
         state = 'waitStartInput'
 
     elif state == 'waitStartInput':
-        state = input( 'Please select one of the options from above.' )
+        state = input( 'Your command is: ' )
         if state not in [ '1', '2', '3', '4', '5', '6']:
             print( 'Incorrect Choice.' )
             state = 'waitStartInput'

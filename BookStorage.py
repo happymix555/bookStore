@@ -6,8 +6,8 @@ class BookStorage:
         self.bookList = []
 
     def addBook( self, bookNameStr: str, bookPricePerDayFloat: float, bookFineRateFloat: float, 
-    bookIdInt: int, numberOfRent: int ):
-        thisBookObject = Book( bookNameStr, bookPricePerDayFloat, bookFineRateFloat, bookIdInt, numberOfRent)
+    bookStorageObject):
+        thisBookObject = Book( bookNameStr, bookPricePerDayFloat, bookFineRateFloat, bookStorageObject)
         self.bookList.append(thisBookObject)
 
     def removeBook( self, bookIdInt: int ):
