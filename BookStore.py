@@ -1,4 +1,4 @@
-from BookStorage import Book
+from BookStorage import BookStorage
 from RentRecordStorage import RentRecordStorage
 
 from datetime import date
@@ -9,7 +9,7 @@ class BookStore:
         self.bookStorage = BookStorage()
         self.rentRecordStorage = RentRecordStorage()
 
-    def calculateTotalRevenueInDateRange( self, startDate: date, endDate: date )
+    def calculateTotalRevenueInDateRange( self, startDate: date, endDate: date ):
         thisTotalRevenue = 0
         for record in self.rentRecordStorage:
             if record.actualReturnDate != None:

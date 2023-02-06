@@ -1,4 +1,5 @@
 from RentRecord import RentRecord
+from datetime import date
 
 class RentRecordStorage:
 

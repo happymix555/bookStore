@@ -1,6 +1,6 @@
 from Book import Book
 from BookStorage import BookStorage
-from RentRecordStorage import RentRecordStorage
+# from RentRecordStorage import RentRecordStorage
 
 from datetime import date
 
