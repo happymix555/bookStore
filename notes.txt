@@ -60,3 +60,18 @@ BookStore
         - rentBook()
         - returnBook()
 
+    - TestValidInput
+        - inputText
+        - validationFunctionList
+        - errorMessageList
+        - addInputText()
+        - addValidationFunction()
+        - executeAllValidation()
+
+    - TestValidInputPipeline
+        - testValidInputObject
+        - correctInputList
+        - executeAllPipeLine()
+
+        
+

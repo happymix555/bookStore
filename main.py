@@ -28,33 +28,37 @@ def printAllAvailableBook():
     # loop to get each book object.
     for book in bookStore.bookStorage.bookList:
 
-        # check 
+        # if this book is available then print it.
         if book.availableStatus == True:
             print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )
             print( '\n' )
             bookCountInt += 1
 
-def stringToRentDateFormat( userInputString ):
-    # userInPutString will be in format YYYY-M-D
-    stringToList = userInputString.split('-')
-    year = stringToList[0]
-    month = stringToList[1]
-    day = stringToList[2]
-    return year, month, day
-
 def printAllRentRecord():
+    ''' Print all rent record in our store.
+    '''
     global bookStore
     rentRecordCountInt = 1
+
+    # loop to get all rent record in rent record storage.
     for rentRecord in bookStore.rentRecordStorage.rentRecordList:
+
+        # print various information
         print( f'{ rentRecordCountInt }. Renter Name: { rentRecord.renterNameStr } Rent Date: { rentRecord.rentDate } Expected Return Date: {rentRecord.expectedReturnDate} Actual return date: {rentRecord.actualReturnDate} Total Revenue: {rentRecord.thisRentRevenueFloat}' )
         print( f'Rent price: { rentRecord.totalRentPrice } Fine: { rentRecord.totalFine } Rent Id: { rentRecord.rentRecordIdInt }' )
         print( '\n' )
         rentRecordCountInt += 1
 
 def printUnreturnedRentRecord():
+    ''' Print all rent record that has not been returned yet.
+    '''
     global bookStore4
     rentRecordCountInt = 1
+
+    # loop to get each rent record object.
     for rentRecord in bookStore.rentRecordStorage.rentRecordList:
+
+        #if this rent record has not been returned then print it
         if rentRecord.actualReturnDate == None:
             thisBookObject = fineBookObjectById( bookStore, rentRecord.rentedBookIdInt )
             print( f'{rentRecordCountInt}. Renter Name: {rentRecord.renterNameStr} Book Name: { thisBookObject.bookNameStr } Rent Date: {rentRecord.rentDate} Expected Return Date: {rentRecord.expectedReturnDate} Actual return date: {rentRecord.actualReturnDate} Total Revenue: {rentRecord.thisRentRevenueFloat} Rent Id: {rentRecord.rentRecordIdInt}' )
@@ -62,11 +66,12 @@ def printUnreturnedRentRecord():
             rentRecordCountInt += 1
 
 def addBook():
+    ''' Add new book to our store.
+    '''
     global bookStore, state
-    thisBookNameStr = input( 'Book name: ' )
 
-    if thisBookNameStr == 'x':
-        state = 'start'
+    # get book name from user.
+    thisBookNameStr = input( 'Book name: ' )
     
     thisBookPricePerDayFloat = input( 'Book rent price per Day: ' )
     if allowOnlyPositiveFloat( thisBookPricePerDayFloat ):
