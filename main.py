@@ -3,6 +3,7 @@ from BookStore import BookStore
 from datetime import datetime
 from datetime import date
 from InvalidInputPrevention import *
+from TestValidInput import *
 
 
 def printAllBookInStore():

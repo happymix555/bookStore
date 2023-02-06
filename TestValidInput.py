@@ -25,27 +25,60 @@ class TestValidInput:
         '''
         self.validationFunction.append( validationFunction )
 
+    def addErrorMessage( self, errorMessage ):
+        ''' add error message of each validation function to be shown to user and help them correct the input.
+        '''
+        self.errorMessageList.append( errorMessage )
+
     def executeAllValidation( self ):
         ''' execute all validation function to verify this input text from user.
         '''
-        # get input from user.
-        userInput = input( self.inputText )
-        
-        #loop get all validation function
-        for validationFunction in range( len ( self.validationFunctionList ) ):
-            thisValidationFunction = self.validationFunctionList[ validationFunction ]
+        # initial state is get input from user
+        state = 'getUserInput'
 
-            # validate input according to each function
-            thisFunctionResult = thisValidationFunction( userInput )
+        # while loop to test all validation cases.
+        while 1:
+            
+            # initial state is get input from user
+            if state == 'getUserInput':
 
-            # if input is valid
-            if thisFunctionResult:
+                # get input from user.
+                userInput = input( self.inputText )
 
-            # perform another function
+                #go to validation state
+                state = 'validationInput'
 
-            # if input is invalid
+            # this state validate input with all validation function.
+            elif state == 'validationInput':
+                
+                # correct counter
+                correctCounter = 0
 
-            # ask user to input again and check all validation function again.
+                #loop get all validation function
+                for validationFunctionAndMessageIndex in range( len ( self.validationFunctionList ) ):
+                    thisValidationFunction = self.validationFunctionList[ validationFunctionAndMessageIndex ]
+
+                    # validate input according to each function
+                    thisFunctionResult = thisValidationFunction( userInput )
+
+                    # if input is invalid.
+                    if not thisFunctionResult:
+
+                        # print error message of the validation function to user.
+                        print( self.errorMessageList[ validationFunctionAndMessageIndex ] )
+
+                        # go to state that take input from user again
+                        state = 'getUserInput'
+                        continue
+
+                    # if input pass the validation, perform another function then increase the correct counter
+                    correctCounter += 1
+
+                # if correct counter == number of validation function to test.
+                if correctCounter == len( self.validationFunctionList ):
+                        
+                        # return user input to be used.
+                        return userInput
 
 
 

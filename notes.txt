@@ -66,6 +66,7 @@ BookStore
         - errorMessageList
         - addInputText()
         - addValidationFunction()
+        - addErrorMessage()
         - executeAllValidation()
 
     - TestValidInputPipeline
