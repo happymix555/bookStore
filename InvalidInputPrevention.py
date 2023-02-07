@@ -1,3 +1,6 @@
+from datetime import datetime
+
+
 def allowOnlyFloat( userInput ):
     ''' check weather or not user input a number.
     '''
@@ -34,12 +37,14 @@ def allowOnlyInt( userInput ):
 def allowOnlyPositiveInt( userInput ):
     ''' check if user input a positive integer.
     '''
-
-    if allowOnlyInt( userInput ):
+    try:
         if int( userInput ) >= 0:
             return True
         else:
             return False
+        
+    except:
+        return False
         
 def checkIntInRange( userInput, lowerBound, upperBound ):
     ''' check if user input is in this range
@@ -51,26 +56,32 @@ def checkIntInRange( userInput, lowerBound, upperBound ):
         return False
 
 def checkValidDateFormat( userInputStr ):
+    ''' check if user input date with correct format.
+    '''
+
     userInputList = userInputStr.split( '-' )
     if len(userInputList) != 3:
-        print('Invalid date format.')
         return False
     if allowOnlyPositiveInt( userInputList[ 0 ] ) and allowOnlyPositiveInt( userInputList[ 1 ] ) and allowOnlyPositiveInt( userInputList[ 2 ] ):
         if 1 <= int( userInputList[ 1 ] ) <= 12:
             if 1 <= int( userInputList[ 2 ] ) <= 31:
                 return True
             else:
-                print( 'Invalid Day.' )
                 return False
         else:
-            print( 'Invalid month.' )
             return False
 
-def checkLaterDate( currentDate, toBeLaterDate ):
+def checkLaterDate( toBeLaterDate, currentDate ):
+    ''' check if toBeLaterDate is in the future compared to currentDate.
+    '''
+
+    # convert string to datetime datatype.
+    toBeLaterDate = datetime.strptime(toBeLaterDate, '%Y-%m-%d')
+    currentDate = datetime.strptime(currentDate, '%Y-%m-%d')
+
     if toBeLaterDate.day - currentDate.day >= 1:
         return True
     else:
-        print( 'Input Must be in the Future.' )
         return False
 
 def findRecordObjectById( bookStoreObject, rentRecordIdInt ):

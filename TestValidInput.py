@@ -80,10 +80,13 @@ class TestValidInput:
                             thisFunctionResult = thisValidationFunction( userInput )
                         else:
                             thisFunctionResult = thisValidationFunction( userInput, *thisValidationFunctionArgumentList )
+                    
+                    # if unforeseen error was found, tell the user and take the input from uses again.
                     except Exception as e:
                         print( f'Found error of a validation function: { self.validationFunctionList[ validationFunctionAndMessageIndex ] }' )
                         print( e )
-                        continue
+                        state = 'getUserInput'
+                        break
 
                     # if input is invalid.
                     if not thisFunctionResult:

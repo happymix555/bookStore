@@ -18,8 +18,8 @@ def printAllBookInStore():
         
         # print various information about this book.
         print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )
-        print( '\n' )
         bookCountInt += 1
+    print( '\n' )
 
 def printAllAvailableBook():
     ''' Print all book in our store that is currently available for rent.
@@ -33,9 +33,9 @@ def printAllAvailableBook():
 
         # if this book is available then print it.
         if book.availableStatus == True:
-            print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )
-            print( '\n' )
+            print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )   
             bookCountInt += 1
+    print( '\n' )
 
 def printAllRentRecord():
     ''' Print all rent record in our store.
@@ -47,11 +47,17 @@ def printAllRentRecord():
     # loop to get all rent record in rent record storage.
     for rentRecord in bookStore.rentRecordStorage.rentRecordList:
 
+        # find book name with book id.
+        for book in bookStore.bookStorage.bookList:
+            if book.bookIdInt == rentRecord.rentedBookIdInt:
+                bookNameStr = book.bookNameStr
+
         # print various information
         print( f'{ rentRecordCountInt }. Renter Name: { rentRecord.renterNameStr } Rent Date: { rentRecord.rentDate } Expected Return Date: {rentRecord.expectedReturnDate} Actual return date: {rentRecord.actualReturnDate} Total Revenue: {rentRecord.thisRentRevenueFloat}' )
-        print( f'Rent price: { rentRecord.totalRentPrice } Fine: { rentRecord.totalFine } Rent Id: { rentRecord.rentRecordIdInt }' )
-        print( '\n' )
+        print( f'   Rent price: { rentRecord.totalRentPrice } Fine: { rentRecord.totalFine } Rent Id: { rentRecord.rentRecordIdInt }' )
+        print( f'   Rented book: { bookNameStr }' )
         rentRecordCountInt += 1
+    print( '\n' )
 
 def printUnreturnedRentRecord():
     ''' Print all rent record that has not been returned yet.
@@ -67,8 +73,8 @@ def printUnreturnedRentRecord():
         if rentRecord.actualReturnDate == None:
             thisBookObject = fineBookObjectById( bookStore, rentRecord.rentedBookIdInt )
             print( f'{rentRecordCountInt}. Renter Name: {rentRecord.renterNameStr} Book Name: { thisBookObject.bookNameStr } Rent Date: {rentRecord.rentDate} Expected Return Date: {rentRecord.expectedReturnDate} Actual return date: {rentRecord.actualReturnDate} Total Revenue: {rentRecord.thisRentRevenueFloat} Rent Id: {rentRecord.rentRecordIdInt}' )
-            print( '\n' )
             rentRecordCountInt += 1
+    print( '\n' )
 
 def addBook():
     ''' Add new book to our store.
@@ -115,16 +121,16 @@ def removeBook():
     global bookStore, state
     
     # print all book in our store to user with index.
-    bookCountInt = 1
+    bookCountInt = 0
     allBookIdList = []
     for book in bookStore.bookStorage.bookList:
         allBookIdList.append( book.bookIdInt )
-        print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )
+        print( f'{ bookCountInt + 1 }. Book name: { book.bookNameStr } Book ID: { book.bookIdInt }.' )
         bookCountInt += 1
 
     # get input from user in form of index of which book to be removed.
     bookIdToBeRemovedTest = TestValidInput()
-    bookIdToBeRemovedTest.addInputText( 'Book ID to be removed: ' )
+    bookIdToBeRemovedTest.addInputText( 'Book to be removed: ' )
 
     # check if input is a positive integer
     bookIdToBeRemovedTest.addValidationFunction( allowOnlyPositiveInt ) 
@@ -145,32 +151,58 @@ def removeBook():
     
 
 def rentBook():
+    ''' rent a book in our book store
+    '''
     global bookStore, state
-    printAllAvailableBook()
+
+    # print all available book for user to be choose and get all available book id.
+    bookCountInt = 0
     allBookAvailableIdList = []
     for book in bookStore.bookStorage.bookList:
         if book.availableStatus == True:
             allBookAvailableIdList.append( book.bookIdInt )
-    rentBookIdInt = input( 'Book ID to rent: ' )
-    if allowOnlyPositiveInt( rentBookIdInt ):
-        if int( rentBookIdInt ) not in allBookAvailableIdList:
-            print( 'This book dose not exist.' )
-        else:
-            renterName = input( 'Renter name: ' )
-            rentDate = input( '(YYYY-M-D)Rent Date:' )
-            if checkValidDateFormat( rentDate ):
-                expectedReturnDate = input( '(YYYY-M-D)Expected Return Date:' )
-                if checkValidDateFormat( expectedReturnDate ):
-                    if checkLaterDate( datetime.strptime(rentDate, '%Y-%m-%d'), datetime.strptime(expectedReturnDate, '%Y-%m-%d') ):
-                        rentDateObject = datetime.strptime(rentDate, '%Y-%m-%d')
-                        bookStore.rentRecordStorage.rentBook( renterName, rentDateObject, 
-                        datetime.strptime(expectedReturnDate, '%Y-%m-%d'), int(rentBookIdInt), bookStore.bookStorage, bookStore.rentRecordStorage )
-                        print( 'Rent successfully.' )
-                        printAllRentRecord()
-                        state = 'start'
+            print( f'{ bookCountInt + 1 }. Book name: { book.bookNameStr } Book ID: { book.bookIdInt }.' )
+            bookCountInt += 1
 
-    if rentBookIdInt == 'x':
-        state = 'start'
+    # get check if user input a positive integer
+    rentBookIndexTest = TestValidInput()
+    rentBookIndexTest.addInputText( 'Book to be rent: ' )
+    rentBookIndexTest.addValidationFunction( allowOnlyPositiveInt )
+    rentBookIndexTest.addErrorMessage( 'Error: input must be only positive int' )
+
+    # check if this book exist in out store
+    rentBookIndexTest.addValidationFunction( checkIntInRange, [1, bookCountInt] )
+    rentBookIndexTest.addErrorMessage( 'Error: this book does not exist.' )
+    rentBookIndexInt = rentBookIndexTest.executeAllValidation()
+
+    # get renter name
+    renterName = input( 'Renter name: ' )
+
+    # get and validate rent date
+    rentDateTest = TestValidInput()
+    rentDateTest.addInputText( '(YYYY-M-D)Rent Date:' )
+    rentDateTest.addValidationFunction( checkValidDateFormat )
+    rentDateTest.addErrorMessage( 'Error: incorrect date.' )
+    rentDate = rentDateTest.executeAllValidation()
+
+    # get and validate expected return date
+    expectedReturnDateTest = TestValidInput()
+
+    # check expected date format
+    expectedReturnDateTest.addInputText( '(YYYY-M-D)Expected return Date:' )
+    expectedReturnDateTest.addValidationFunction( checkValidDateFormat )
+    expectedReturnDateTest.addErrorMessage( 'Error: incorrect date.' )
+
+    # check if expected return date is in the future compared to rent date.
+    expectedReturnDateTest.addValidationFunction( checkLaterDate, [ rentDate ] )
+    expectedReturnDateTest.addErrorMessage( 'Error: expected return date must be in the future.' )
+    expectedReturnDate = expectedReturnDateTest.executeAllValidation()
+
+    bookStore.rentRecordStorage.rentBook( renterName, datetime.strptime(rentDate, '%Y-%m-%d'), 
+    datetime.strptime(expectedReturnDate, '%Y-%m-%d'), int( allBookAvailableIdList[ int( rentBookIndexInt ) - 1 ] ), bookStore.bookStorage, bookStore.rentRecordStorage )
+    print( 'Rent successfully.' )
+    printAllRentRecord()
+    state = 'start'
 
 def returnBook():
     global bookStore, state
