@@ -1,6 +1,12 @@
 class TestValidInput:
     ''' This class used to implement chain of input validation in
         stage by stage manner.
+
+        Every function that will use with this class must receive a user function as the 
+        first argument.
+
+        If function used with this class have another argument than user input,
+        user must add those argument in list in the same order of the function. 
     '''
 
     def __init__ ( self ) -> None:
@@ -11,19 +17,28 @@ class TestValidInput:
         # list to store all validation function for this input
         self.validationFunctionList = []
 
+        # list of argument for each validation function.
+        self.validationFunctionArgumentList = []
+
         # list to store all error message to inform user why some validation not pass
         self.errorMessageList = []
+
 
     def addInputText( self, inputText ):
         ''' add input text of this test object.
         '''
         self.inputText = inputText
 
-    def addValidationFunction( self, validationFunction ):
+    def addValidationFunction( self, validationFunction, validationFunctionArgumentList = [] ):
         ''' add validation function to list of validation function to use with this input.
             validation function should return True if pass else, return False.      
         '''
+
+        # add validation function
         self.validationFunctionList.append( validationFunction )
+
+        # add argument of validation function
+        self.validationFunctionArgumentList.append( validationFunctionArgumentList )
 
     def addErrorMessage( self, errorMessage ):
         ''' add error message of each validation function to be shown to user and help them correct the input.
@@ -57,12 +72,17 @@ class TestValidInput:
                 #loop get all validation function
                 for validationFunctionAndMessageIndex in range( len ( self.validationFunctionList ) ):
                     thisValidationFunction = self.validationFunctionList[ validationFunctionAndMessageIndex ]
+                    thisValidationFunctionArgumentList = self.validationFunctionArgumentList[ validationFunctionAndMessageIndex ]
 
                     # validate input according to each function
                     try:
-                        thisFunctionResult = thisValidationFunction( userInput )
-                    except:
+                        if thisValidationFunctionArgumentList == []:
+                            thisFunctionResult = thisValidationFunction( userInput )
+                        else:
+                            thisFunctionResult = thisValidationFunction( userInput, *thisValidationFunctionArgumentList )
+                    except Exception as e:
                         print( f'Found error of a validation function: { self.validationFunctionList[ validationFunctionAndMessageIndex ] }' )
+                        print( e )
                         continue
 
                     # if input is invalid.
@@ -73,7 +93,7 @@ class TestValidInput:
 
                         # go to state that take input from user again
                         state = 'getUserInput'
-                        continue
+                        break
 
                     # if input pass the validation, perform another function then increase the correct counter
                     correctCounter += 1

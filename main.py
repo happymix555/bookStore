@@ -100,6 +100,8 @@ def addBook():
     # create Book object and add it to a BookStorage in BookStore.
     bookStore.bookStorage.addBook( thisBookNameStr, float( thisBookPricePerDayFloat ), float( thisBookFineRateFloat ),
                                     bookStore.bookStorage)
+    
+    # print all book currently in out store.
     print( 'Now we have these books in our store: ' )
     for book in bookStore.bookStorage.bookList:
         print( book.bookNameStr )
@@ -107,26 +109,40 @@ def addBook():
     print( '\n' )
 
 def removeBook():
+    ''' Remove a book from our store.
+    '''
+
     global bookStore, state
+    
+    # print all book in our store to user with index.
     bookCountInt = 1
     allBookIdList = []
     for book in bookStore.bookStorage.bookList:
         allBookIdList.append( book.bookIdInt )
         print( f'{bookCountInt}. Book name: {book.bookNameStr} Book ID: {book.bookIdInt}.' )
         bookCountInt += 1
-    bookIdToBeRemovedInt = input( 'Book ID to be removed: ' )
-    if allowOnlyPositiveInt( bookIdToBeRemovedInt ):
-        if int( bookIdToBeRemovedInt ) not in allBookIdList:
-            print( 'This book was not found in our store.' )
-        else:
-            bookStore.bookStorage.removeBook( int(bookIdToBeRemovedInt) )
-            print( 'Book was removed successfully.' )
-            print( 'This is all book left in our store.' )
-            printAllBookInStore()
-            state = 'start'
 
-    if bookIdToBeRemovedInt == 'x':
-        state = 'start'
+    # get input from user in form of index of which book to be removed.
+    bookIdToBeRemovedTest = TestValidInput()
+    bookIdToBeRemovedTest.addInputText( 'Book ID to be removed: ' )
+
+    # check if input is a positive integer
+    bookIdToBeRemovedTest.addValidationFunction( allowOnlyPositiveInt ) 
+    bookIdToBeRemovedTest.addErrorMessage( 'Error: Input can only be a positive integer' )
+
+    # check if input is in bookCountInt's range to ensure that user select only the book that
+    # exist in our store.
+    bookIdToBeRemovedTest.addValidationFunction( checkIntInRange, [1, bookCountInt] )
+    bookIdToBeRemovedTest.addErrorMessage( 'This book dose not exist.' )
+    bookIndexToBeRemovedInt = bookIdToBeRemovedTest.executeAllValidation()
+
+    bookStore.bookStorage.removeBook( int( allBookIdList[ int( bookIndexToBeRemovedInt ) - 1 ] ) )
+    print( 'Book was removed successfully.' )
+    print( 'This is all book left in our store.' )
+    printAllBookInStore()
+    print( '\n' )
+    state = 'start'
+    
 
 def rentBook():
     global bookStore, state

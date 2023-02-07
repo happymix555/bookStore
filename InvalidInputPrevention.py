@@ -22,20 +22,33 @@ def allowOnlyPositiveFloat( userInput ):
 
 
 def allowOnlyInt( userInput ):
+    ''' check if user input a integer.
+    '''
+
     try:
         int( userInput )
         return True
     except:
-        print( 'Input can only be a integer.' )
         return False
     
 def allowOnlyPositiveInt( userInput ):
+    ''' check if user input a positive integer.
+    '''
+
     if allowOnlyInt( userInput ):
         if int( userInput ) >= 0:
             return True
         else:
-            print( 'Cannot input negative number.' )
             return False
+        
+def checkIntInRange( userInput, lowerBound, upperBound ):
+    ''' check if user input is in this range
+    '''
+
+    if lowerBound <= int(userInput) <= upperBound:
+        return True
+    else:
+        return False
 
 def checkValidDateFormat( userInputStr ):
     userInputList = userInputStr.split( '-' )
