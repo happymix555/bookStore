@@ -5,9 +5,15 @@ from BookStorage import BookStorage
 from datetime import date
 
 class RentRecord: 
+    ''' This class is used to store information about the renting.
+    '''
     
     def __init__( self, renterNameStr: str, rentDate: date, expectedReturnDate: date,
-    rentedBookIdInt: int, bookStorageObject, rentRecordStorageObject ) -> None:
+    rentedBookIdInt: int, rentRecordStorageObject ) -> None:
+        ''' Initialize RentRecord object
+
+            ARGS: name of renter, rent date, expected return date, book id to be rent, BookStorage object, RentRecord object.
+        '''
         self.renterNameStr = renterNameStr
         self.rentDate = rentDate
         self.expectedReturnDate = expectedReturnDate
@@ -15,53 +21,64 @@ class RentRecord:
         self.bookRentPricePerDayFloat = None
         self.bookFineRateFloat = None
         self.totalRentPrice = None
-        # self.calculateRentPrice( bookStorageObject )
         self.rentRecordIdInt = len( rentRecordStorageObject.rentRecordList )
         self.actualReturnDate = None
         self.totalFine = None
         self.thisRentRevenueFloat = None
-        
-        
+    
+
     def calculateRentPrice( self, bookStorageObject ):
+        ''' calculate rent price.
+
+            ARGS: BookStorage object.
+        '''
+        # get all book in list.
         bookList = bookStorageObject.bookList
+
+        # loop to get all Book object.
         for book in bookList:
+
+            # if book id == id store in this record, calculate rent price.
             if book.bookIdInt == self.rentedBookIdInt:
-                # print( 'in calculateRentPrice function.' )
-                # self.bookRentPricePerDayFloat = book.bookPricePerDayFloat
-                # print( self.bookRentPricePerDayFloat )
-                print( book.bookPricePerDayFloat ) 
                 numberOfDayRentedInDate = self.actualReturnDate - self.rentDate
                 numberOfDayRentedInDay = numberOfDayRentedInDate.days
                 self.totalRentPrice = numberOfDayRentedInDay * self.bookRentPricePerDayFloat
                 
 
     def calculateFine( self, actualReturnDate, bookStorageObject ):
-        # print( 'in calculateFine function' )
+        ''' Calculate rent fine if user return book late.
+
+            ARGS: actual return date, BookStorage object
+        '''
+
+        # loop get each book.
         for book in bookStorageObject.bookList:
+
+            # if book id == id store in this record, get fine rate of this book
             if book.bookIdInt == self.rentedBookIdInt:
                 self.bookFineRateFloat = book.bookFineRateFloat
                 self.bookRentPricePerDayFloat = book.bookPricePerDayFloat
                 break
+
+        # get actual return date
         self.actualReturnDate = actualReturnDate
+
+        # get late return in day
         lateReturnInDate = self.actualReturnDate - self.expectedReturnDate
         lateReturnInDay = lateReturnInDate.days
-        # print( lateReturnInDay )
-        # print( self.bookRentPricePerDayFloat )
+
+        # if return book in time, there is no fine
         self.totalFine = 0.0
+
+        # if return book late, calculate the fine
         if lateReturnInDay >= 0:
             self.totalFine = lateReturnInDay * self.bookRentPricePerDayFloat * self.bookFineRateFloat
-        # print( self.totalFine )
 
     def calculateRevenue( self ):
+        ''' calculate total revenue of each rent from rent record.
+        '''
+
         self.thisRentRevenueFloat = self.totalRentPrice + self.totalFine
 
 
-
-if __name__ == '__main__':
-    pass
-    # mockBookStorage = BookStorage()
-    # mockRentRecordStorage = RentRecordStorage()
-
-    
-    # mockRentRecord = RentRecord( 'happymix', (2023, 2, 1), (2023, 2, 2), (2023, 2, 3), 0,  )
 

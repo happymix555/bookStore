@@ -31,7 +31,9 @@ class TestValidInput:
 
     def addValidationFunction( self, validationFunction, validationFunctionArgumentList = [] ):
         ''' add validation function to list of validation function to use with this input.
-            validation function should return True if pass else, return False.      
+            validation function should return True if pass else, return False.  
+
+            ARGS: validation function, list of argument of validation function in function's input order.    
         '''
 
         # add validation function
@@ -42,17 +44,19 @@ class TestValidInput:
 
     def addErrorMessage( self, errorMessage ):
         ''' add error message of each validation function to be shown to user and help them correct the input.
+
+            ARGS: error message to print to user.
         '''
         self.errorMessageList.append( errorMessage )
 
     def executeAllValidation( self ):
-        ''' execute all validation function to verify this input text from user.
+        ''' execute all validation function to verify input text from user.
         '''
         # initial state is get input from user
         state = 'getUserInput'
 
         # while loop to test all validation cases.
-        while 1:
+        while True:
             
             # initial state is get input from user
             if state == 'getUserInput':

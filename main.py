@@ -82,26 +82,50 @@ def addBook():
 
     global bookStore, state
 
-    # get book name from user.
-    thisBookNameStr = input( 'Book name: ' )
+    # create book name test object
+    bookNameStrTest = TestValidInput()
+    bookNameStrTest.addInputText( 'Book name: ' )
+    bookNameStrTest.addValidationFunction( checkStringNotEmpty )
+    bookNameStrTest.addErrorMessage( 'Error: Book name cannot left empty' )
 
-    # get rent price per day of this book through TestValidInput class.
-    testBookPricePerDayFloat = TestValidInput()
-    testBookPricePerDayFloat.addInputText( 'Book rent price per Day: ' )
+    # take book name from user and execute all validation.
+    thisBookNameStr = bookNameStrTest.executeAllValidation()
+
+    # flag to tell if this book already exist.
+    bookAlreadyExistFlag = 0
+
+    # if this book already exist
+    for book in bookStore.bookStorage.bookList:
+        if book.bookNameStr == thisBookNameStr:
+
+            # get all information about this book
+            thisBookPricePerDayFloat = book.bookPricePerDayFloat
+            thisBookFineRateFloat = book.bookFineRateFloat
+            
+            # change flag to tell that this book already exist.
+            bookAlreadyExistFlag = 1
+            break
     
-    # check if book rent price is only a positive float.
-    testBookPricePerDayFloat.addValidationFunction( allowOnlyPositiveFloat )
-    testBookPricePerDayFloat.addErrorMessage( 'Error: input can only be a positive number.' )
-    thisBookPricePerDayFloat = testBookPricePerDayFloat.executeAllValidation()
-    
-    # get fine rate of this book through TestValidInput class.
-    testBookFineRateFloat = TestValidInput()
-    testBookFineRateFloat.addInputText( 'Book fine rate: ' )
-    
-    # check if fine rate is only a positive float.
-    testBookFineRateFloat.addValidationFunction( allowOnlyPositiveFloat )
-    testBookFineRateFloat.addErrorMessage( 'Error: input can only be a positive number.' )
-    thisBookFineRateFloat = testBookFineRateFloat.executeAllValidation()
+    # if this book already exist, use the old information, no need to take further input from user.
+    if bookAlreadyExistFlag == 0:
+
+        # get rent price per day of this book through TestValidInput class.
+        testBookPricePerDayFloat = TestValidInput()
+        testBookPricePerDayFloat.addInputText( 'Book rent price per Day: ' )
+        
+        # check if book rent price is only a positive float.
+        testBookPricePerDayFloat.addValidationFunction( allowOnlyPositiveFloat )
+        testBookPricePerDayFloat.addErrorMessage( 'Error: input can only be a positive number.' )
+        thisBookPricePerDayFloat = testBookPricePerDayFloat.executeAllValidation()
+        
+        # get fine rate of this book through TestValidInput class.
+        testBookFineRateFloat = TestValidInput()
+        testBookFineRateFloat.addInputText( 'Book fine rate: ' )
+        
+        # check if fine rate is only a positive float.
+        testBookFineRateFloat.addValidationFunction( allowOnlyPositiveFloat )
+        testBookFineRateFloat.addErrorMessage( 'Error: input can only be a positive number.' )
+        thisBookFineRateFloat = testBookFineRateFloat.executeAllValidation()
 
     # create Book object and add it to a BookStorage in BookStore.
     bookStore.bookStorage.addBook( thisBookNameStr, float( thisBookPricePerDayFloat ), float( thisBookFineRateFloat ),
@@ -120,13 +144,16 @@ def removeBook():
 
     global bookStore, state
     
-    # print all book in our store to user with index.
+    # print all available book in our store to user with index.
     bookCountInt = 0
     allBookIdList = []
     for book in bookStore.bookStorage.bookList:
-        allBookIdList.append( book.bookIdInt )
-        print( f'{ bookCountInt + 1 }. Book name: { book.bookNameStr } Book ID: { book.bookIdInt }.' )
-        bookCountInt += 1
+
+        # book that has been rent and not return cannot be removed.
+        if book.availableStatus == True:
+            allBookIdList.append( book.bookIdInt )
+            print( f'{ bookCountInt + 1 }. Book name: { book.bookNameStr } Book ID: { book.bookIdInt }.' )
+            bookCountInt += 1
 
     # get input from user in form of index of which book to be removed.
     bookIdToBeRemovedTest = TestValidInput()
@@ -155,14 +182,17 @@ def rentBook():
     '''
     global bookStore, state
 
-    # print all available book for user to be choose and get all available book id.
+    # get all available book but combine the same name.
+    uniqueBookNameList = []
     bookCountInt = 0
-    allBookAvailableIdList = []
     for book in bookStore.bookStorage.bookList:
-        if book.availableStatus == True:
-            allBookAvailableIdList.append( book.bookIdInt )
-            print( f'{ bookCountInt + 1 }. Book name: { book.bookNameStr } Book ID: { book.bookIdInt }.' )
+        if book.bookNameStr not in uniqueBookNameList:
+            uniqueBookNameList.append( book.bookNameStr )
+
+            # print it to user.
+            print( f'{ bookCountInt + 1 }. Book name: { book.bookNameStr }' )
             bookCountInt += 1
+    
 
     # get check if user input a positive integer
     rentBookIndexTest = TestValidInput()
@@ -173,7 +203,7 @@ def rentBook():
     # check if this book exist in out store
     rentBookIndexTest.addValidationFunction( checkIntInRange, [1, bookCountInt] )
     rentBookIndexTest.addErrorMessage( 'Error: this book does not exist.' )
-    rentBookIndexInt = rentBookIndexTest.executeAllValidation()
+    rentBookIndexStr = rentBookIndexTest.executeAllValidation()
 
     # get renter name
     renterName = input( 'Renter name: ' )
@@ -198,8 +228,12 @@ def rentBook():
     expectedReturnDateTest.addErrorMessage( 'Error: expected return date must be in the future.' )
     expectedReturnDate = expectedReturnDateTest.executeAllValidation()
 
+    # get book name
+    thisBookNameStr = uniqueBookNameList[ int( rentBookIndexStr ) - 1 ]
+    thisBookIdInt = bookStore.bookStorage.getTheFirstFoundBookIdFromBookName( thisBookNameStr )
+
     bookStore.rentRecordStorage.rentBook( renterName, datetime.strptime(rentDate, '%Y-%m-%d'), 
-    datetime.strptime(expectedReturnDate, '%Y-%m-%d'), int( allBookAvailableIdList[ int( rentBookIndexInt ) - 1 ] ), bookStore.bookStorage, bookStore.rentRecordStorage )
+    datetime.strptime(expectedReturnDate, '%Y-%m-%d'), thisBookIdInt, bookStore.bookStorage, bookStore.rentRecordStorage )
     print( 'Rent successfully.' )
     printAllRentRecord()
     state = 'start'
@@ -292,77 +326,92 @@ def viewTotalRevenueInDateRange():
 
     # check if expected return date is in the future compared to rent date.
     endDateTest.addValidationFunction( checkLaterDate, [ startDate ] )
-    endDateTest.addErrorMessage( 'Error: actual return date must be in the future.' )
+    endDateTest.addErrorMessage( 'Error: End date must be in the future.' )
     endDate = endDateTest.executeAllValidation()
 
+    # calculate revenue within this date range.
     revenueInThisDateRange = bookStore.calculateTotalRevenueInDateRange( datetime.strptime(startDate, '%Y-%m-%d'), datetime.strptime(endDate, '%Y-%m-%d') )
+    
+    # print revenue to user.
     print( f'Total Revenue in this date range is: {revenueInThisDateRange}' )
     state = 'start'
 
 def viewTheMostPopularBook():
+    ''' Show record of each book and it number of rent time starting from the most popular one.
+    '''
+
     global bookStore, state
+
+    # get book name and it number of rent time.
     bookNameList, bookNumberOfRentList = bookStore.viewTheMostPopularBook()
+
+    # print result to user.
     popularityNumberInt = 1
     for bookIndex in range( len( bookNameList ) ):
         print( f'{ popularityNumberInt }. Book name: { bookNameList[ bookIndex ] }, Number of rent times: { bookNumberOfRentList[ bookIndex ] }' )
         popularityNumberInt += 1
-    # print( bookNameList )
-    # print( bookNumberOfRentList )
+    print( '\n' )
     state = 'start'
 
 
-#main loop
-
-bookStore = BookStore()
-
-
-#adding book to store
-bookStore.bookStorage.addBook( 'book1', float( 10 ), float( 1.5 ),
-    bookStore.bookStorage )
-bookStore.bookStorage.addBook( 'book2', float( 15 ), float( 1.5 ),
-    bookStore.bookStorage )
-bookStore.bookStorage.addBook( 'book3', float( 20 ), float( 1.5 ),
-    bookStore.bookStorage )
-
-# #renting book
-# bookStore.rentRecordStorage.rentBook( 'happymix', date(2023-2-3), 
-#     date(2023-2-4), 0, bookStore.bookStorage, bookStore.rentRecordStorage )
+# main loop
+def main():
+    # create bookStore object
+    bookStore = BookStore()
 
 
+    # mock adding book to store
+    bookStore.bookStorage.addBook( 'book1', float( 10 ), float( 1.5 ),
+        bookStore.bookStorage )
+    bookStore.bookStorage.addBook( 'book2', float( 15 ), float( 1.5 ),
+        bookStore.bookStorage )
+    bookStore.bookStorage.addBook( 'book3', float( 20 ), float( 1.5 ),
+        bookStore.bookStorage )
 
-state = 'start'
-while 1:
-    if state == 'start':
-        print( 'Welcome to Yannix book store.' )
-        print( 'Please select the option that you want.' )
-        print( '1. Add new book.' )
-        print( '2. Remove a book.' )
-        print( '3. Rent a book.' )
-        print( '4. Return a book.' )
-        print( '5. View total revenue in date range.' )
-        print( '6. View the most popular books.' )
-        state = 'waitStartInput'
-
-    elif state == 'waitStartInput':
-        state = input( 'Your command is: ' )
-        if state not in [ '1', '2', '3', '4', '5', '6']:
-            print( 'Incorrect Choice.' )
+    # initial state, show available options.
+    state = 'start'
+    while 1:
+        if state == 'start':
+            print( 'Welcome to Yannix book store.' )
+            print( 'Please select the option that you want.' )
+            print( '1. Add new book.' )
+            print( '2. Remove a book.' )
+            print( '3. Rent a book.' )
+            print( '4. Return a book.' )
+            print( '5. View total revenue in date range.' )
+            print( '6. View the most popular books.' )
             state = 'waitStartInput'
-    
-    elif state == '1':
-        addBook()
-    
-    elif state == '2':
-        removeBook()
 
-    elif state == '3':
-        rentBook()
+        # wait for user command.
+        elif state == 'waitStartInput':
+            state = input( 'Your command is: ' )
+            if state not in [ '1', '2', '3', '4', '5', '6']:
+                print( 'Incorrect Choice.' )
+                state = 'waitStartInput'
+        
+        # adding book.
+        elif state == '1':
+            addBook()
+        
+        # removing book.
+        elif state == '2':
+            removeBook()
 
-    elif state == '4':
-        returnBook()
+        # renting book.
+        elif state == '3':
+            rentBook()
 
-    elif state == '5':
-        viewTotalRevenueInDateRange()
+        # returning book.
+        elif state == '4':
+            returnBook()
 
-    elif state == '6':
-        viewTheMostPopularBook()
+        # viewing total revenue in specific date range.
+        elif state == '5':
+            viewTotalRevenueInDateRange()
+
+        # viewing the most popular book.
+        elif state == '6':
+            viewTheMostPopularBook()
+
+if __name__ == '__main__':
+    main()
