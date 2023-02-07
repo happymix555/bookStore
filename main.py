@@ -9,6 +9,7 @@ from TestValidInput import *
 def printAllBookInStore():
     ''' Print all book in our store.
     '''
+
     global bookStore
     bookCountInt = 1
 
@@ -23,6 +24,7 @@ def printAllBookInStore():
 def printAllAvailableBook():
     ''' Print all book in our store that is currently available for rent.
     '''
+
     global bookStore
     bookCountInt = 1
 
@@ -38,6 +40,7 @@ def printAllAvailableBook():
 def printAllRentRecord():
     ''' Print all rent record in our store.
     '''
+
     global bookStore
     rentRecordCountInt = 1
 
@@ -53,6 +56,7 @@ def printAllRentRecord():
 def printUnreturnedRentRecord():
     ''' Print all rent record that has not been returned yet.
     '''
+
     global bookStore4
     rentRecordCountInt = 1
 
@@ -69,22 +73,38 @@ def printUnreturnedRentRecord():
 def addBook():
     ''' Add new book to our store.
     '''
+
     global bookStore, state
 
     # get book name from user.
     thisBookNameStr = input( 'Book name: ' )
+
+    # get rent price per day of this book through TestValidInput class.
+    testBookPricePerDayFloat = TestValidInput()
+    testBookPricePerDayFloat.addInputText( 'Book rent price per Day: ' )
     
-    thisBookPricePerDayFloat = input( 'Book rent price per Day: ' )
-    if allowOnlyPositiveFloat( thisBookPricePerDayFloat ):
-        thisBookFineRateFloat = input( 'Book fine rate: ' )
-        if allowOnlyPositiveFloat( thisBookFineRateFloat ):
-            bookStore.bookStorage.addBook( thisBookNameStr, float( thisBookPricePerDayFloat ), float( thisBookFineRateFloat ),
-            bookStore.bookStorage )
-            for book in bookStore.bookStorage.bookList:
-                print( book.bookNameStr )
-                print( book.bookIdInt )
-                print( '\n' )
-            state = 'start'
+    # check if book rent price is only a positive float.
+    testBookPricePerDayFloat.addValidationFunction( allowOnlyPositiveFloat )
+    testBookPricePerDayFloat.addErrorMessage( 'Error: input can only be a positive number.' )
+    thisBookPricePerDayFloat = testBookPricePerDayFloat.executeAllValidation()
+    
+    # get fine rate of this book through TestValidInput class.
+    testBookFineRateFloat = TestValidInput()
+    testBookFineRateFloat.addInputText( 'Book fine rate: ' )
+    
+    # check if fine rate is only a positive float.
+    testBookFineRateFloat.addValidationFunction( allowOnlyPositiveFloat )
+    testBookFineRateFloat.addErrorMessage( 'Error: input can only be a positive number.' )
+    thisBookFineRateFloat = testBookFineRateFloat.executeAllValidation()
+
+    # create Book object and add it to a BookStorage in BookStore.
+    bookStore.bookStorage.addBook( thisBookNameStr, float( thisBookPricePerDayFloat ), float( thisBookFineRateFloat ),
+                                    bookStore.bookStorage)
+    print( 'Now we have these books in our store: ' )
+    for book in bookStore.bookStorage.bookList:
+        print( book.bookNameStr )
+    state = 'start'
+    print( '\n' )
 
 def removeBook():
     global bookStore, state

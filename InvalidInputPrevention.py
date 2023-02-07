@@ -1,18 +1,25 @@
 def allowOnlyFloat( userInput ):
+    ''' check weather or not user input a number.
+    '''
+
     try:
         float( userInput )
         return True
     except:
-        print( 'Input can only be a number.' )
         return False
     
 def allowOnlyPositiveFloat( userInput ):
-    if allowOnlyFloat( userInput ):
+    ''' check if user input a positive number( float or int).
+    '''
+
+    try:
         if float( userInput ) >= 0:
             return True
         else:
-            print( 'Cannot input negative number.' )
             return False
+    except:
+        return False
+
 
 def allowOnlyInt( userInput ):
     try:

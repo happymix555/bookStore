@@ -23,7 +23,7 @@ class TestValidInput:
         ''' add validation function to list of validation function to use with this input.
             validation function should return True if pass else, return False.      
         '''
-        self.validationFunction.append( validationFunction )
+        self.validationFunctionList.append( validationFunction )
 
     def addErrorMessage( self, errorMessage ):
         ''' add error message of each validation function to be shown to user and help them correct the input.
@@ -59,7 +59,11 @@ class TestValidInput:
                     thisValidationFunction = self.validationFunctionList[ validationFunctionAndMessageIndex ]
 
                     # validate input according to each function
-                    thisFunctionResult = thisValidationFunction( userInput )
+                    try:
+                        thisFunctionResult = thisValidationFunction( userInput )
+                    except:
+                        print( f'Found error of a validation function: { self.validationFunctionList[ validationFunctionAndMessageIndex ] }' )
+                        continue
 
                     # if input is invalid.
                     if not thisFunctionResult:
