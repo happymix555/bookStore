@@ -15,6 +15,23 @@ class BookStore:
         # create RentRecord object
         self.rentRecordStorage = RentRecordStorage()
 
+    def rentBook( self ):
+        ''' This function used to rent a book.
+            
+            - update available status of a book.
+            - create rent record to store information about this rent
+            - increase number of rent of a book.
+        '''
+        pass
+
+    def returnBook( self ):
+        ''' This function used when user want to return a book.
+            
+            - change rent record status when user return a book.
+        '''
+        pass
+
+
     def calculateTotalRevenueInDateRange( self, startDate: date, endDate: date ):
         ''' calculate total revenue between specify date.
 
@@ -41,11 +58,6 @@ class BookStore:
         
         # return total revenue as the result
         return thisTotalRevenue
-
-    def rentBook(self):
-        ''' - update available status of rent book to False
-            - create rent record of this book
-        '''
 
     def viewTheMostPopularBook( self ):
         ''' generate the most popular book along with its number of rent time

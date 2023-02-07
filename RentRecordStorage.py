@@ -10,34 +10,31 @@ class RentRecordStorage:
         # create list to store RentRecord object.
         self.rentRecordList = []
         
-    def rentBook( self, renterNameStr: str, rentDate: date, expectedReturnDate: date,
-    rentedBookIdInt: int, bookStorageObject, rentRecordStorageObject ):
-        ''' renting book
+    def createRentRecord( self, renterNameStr: str, rentDate: date, expectedReturnDate: date,
+    rentedBookIdInt: int):
+        ''' create rent record to store information about this rent.
 
             ARGS: renter name, rent date, expected return date, id of book to be rent, BookStorage object, RentRecordObject
         '''
 
+        # use assertion to check type of input
+        assert isinstance( renterNameStr, str ), 'renterNameStr must be type str but got {}[{}]'.format( renterNameStr, type( renterNameStr ) )
+        assert isinstance( rentDate, date ), 'rentDate must be type date but got {}[{}]'.format( rentDate, type( rentDate ) )
+        assert isinstance( expectedReturnDate, date ), 'expectedReturnDate must be type date but got {}[{}]'.format( expectedReturnDate, type( expectedReturnDate ) )
+        assert isinstance( rentedBookIdInt, date ), 'rentedBookIdInt must be type int but got {}[{}]'.format( rentedBookIdInt, type( rentedBookIdInt ) )
+
+        # get current available id of rent record.
+        rentRecordIdInt = len( self.rentRecordList )
+        
         # create a new rent record.
         thisRentRecord = RentRecord( renterNameStr, rentDate, expectedReturnDate, 
-        rentedBookIdInt, rentRecordStorageObject )
+        rentedBookIdInt, rentRecordIdInt)
 
         # add a new rent record to storage list.
         self.rentRecordList.append( thisRentRecord )
 
-        # loop get each book in book storage
-        for book in bookStorageObject.bookList:
-
-            # if book is to be rent
-            if book.bookIdInt == rentedBookIdInt:
-
-                # correct number of rent
-                book.numberOfRent += 1
-
-                # change status to unavailable
-                book.availableStatus = False
-
-    def returnBook( self, actualReturnDate, rentRecordIdInt, bookStorageObject ):
-        ''' returning book.
+    def changeRentRecordStatusToReturned( self, actualReturnDate, rentRecordIdInt, bookStorageObject ):
+        ''' change status of rent record when user return a book.
 
             ARGS: return date, rent record id, BookStorage object
         '''
@@ -70,4 +67,16 @@ class RentRecordStorage:
                 # calculate revenue
                 record.calculateRevenue()
                 break
+
+    def findRecordObjectById( self, rentRecordIdInt ):
+        ''' find rent record object by its id.
+
+            ARGS: rent record id
+
+            RETURN: RentRecord object
+        '''
+
+        for rentRecord in self.rentRecordList:
+            if rentRecord.rentRecordIdInt == rentRecordIdInt:
+                return rentRecord
 

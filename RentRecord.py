@@ -9,10 +9,10 @@ class RentRecord:
     '''
     
     def __init__( self, renterNameStr: str, rentDate: date, expectedReturnDate: date,
-    rentedBookIdInt: int, rentRecordStorageObject ) -> None:
+    rentedBookIdInt: int, rentRecordIdInt ) -> None:
         ''' Initialize RentRecord object
 
-            ARGS: name of renter, rent date, expected return date, book id to be rent, BookStorage object, RentRecord object.
+            ARGS: name of renter, rent date, expected return date, book id to be rent, rent record id.
         '''
         self.renterNameStr = renterNameStr
         self.rentDate = rentDate
@@ -21,7 +21,7 @@ class RentRecord:
         self.bookRentPricePerDayFloat = None
         self.bookFineRateFloat = None
         self.totalRentPrice = None
-        self.rentRecordIdInt = len( rentRecordStorageObject.rentRecordList )
+        self.rentRecordIdInt = rentRecordIdInt
         self.actualReturnDate = None
         self.totalFine = None
         self.thisRentRevenueFloat = None

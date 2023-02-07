@@ -49,3 +49,15 @@ class BookStorage:
         for book in self.bookList:
             if book.bookNameStr == bookNameStr:
                 return book.bookIdInt
+            
+    def fineBookObjectById( self, bookIdInt ):
+        ''' find Book object by its id.
+
+            ARGS: book id in int
+
+            RETURN: Book object
+        '''
+
+        for book in self.bookList:
+            if book.bookIdInt == bookIdInt:
+                return book

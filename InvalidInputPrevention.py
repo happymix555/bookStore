@@ -73,23 +73,16 @@ def checkValidDateStrFormat( dateStr ):
 
         ARGS: user input
     '''
+    # try to to use strptime function to cast string date to datetime object
     try:
         datetime.strptime( dateStr, '%Y-%m-%d' )
+
+    # if failed, it will raise value error
     except ValueError:
         return False
-    return True
 
-    userInputList = userInputStr.split( '-' )
-    if len(userInputList) != 3:
-        return False
-    if allowOnlyPositiveInt( userInputList[ 0 ] ) and allowOnlyPositiveInt( userInputList[ 1 ] ) and allowOnlyPositiveInt( userInputList[ 2 ] ):
-        if 1 <= int( userInputList[ 1 ] ) <= 12:
-            if 1 <= int( userInputList[ 2 ] ) <= 31:
-                return True
-            else:
-                return False
-        else:
-            return False
+    # else return True
+    return True
 
 def checkLaterDate( toBeLaterDate, currentDate ):
     ''' check if toBeLaterDate is in the future compared to currentDate.
@@ -106,30 +99,6 @@ def checkLaterDate( toBeLaterDate, currentDate ):
         return True
     else:
         return False
-
-def findRecordObjectById( bookStoreObject, rentRecordIdInt ):
-    ''' find rent record object by its id.
-
-        ARGS: BookStore object, rent record id
-
-        RETURN: RentRecord object
-    '''
-
-    for rentRecord in bookStoreObject.rentRecordStorage.rentRecordList:
-        if rentRecord.rentRecordIdInt == rentRecordIdInt:
-            return rentRecord
-
-def fineBookObjectById( bookStoreObject, bookIdInt ):
-    ''' find Book object by is id.
-
-        ARGS: BookStore object, book id in int
-
-        RETURN: Book object
-    '''
-
-    for book in bookStoreObject.bookStorage.bookList:
-        if book.bookIdInt == bookIdInt:
-            return book
 
 def checkStringNotEmpty( inputStr ):
     ''' check if given string is empty or  not.
