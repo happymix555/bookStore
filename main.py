@@ -205,44 +205,99 @@ def rentBook():
     state = 'start'
 
 def returnBook():
+    ''' Return a book to our store.
+    '''
     global bookStore, state
-    printUnreturnedRentRecord()
-    allUncloseRentRecordList = []
+
+    # rent record index counter
+    rentRecordCountInt = 0
+
+    # store unreturned rent record id in list
+    unReturnedRentRecordIdList = [] 
+
+    # loop to get each rent record object.
     for rentRecord in bookStore.rentRecordStorage.rentRecordList:
+
+        #if this rent record has not been returned then print it and keep it id.
         if rentRecord.actualReturnDate == None:
-            allUncloseRentRecordList.append( rentRecord.rentRecordIdInt )
-    if allUncloseRentRecordList != []:
-        rentIdToBeReturn = input( 'Rent ID to return: ' )
-        if allowOnlyPositiveInt( rentIdToBeReturn ):
-            if int( rentIdToBeReturn ) not in allUncloseRentRecordList:
-                print( 'This rent record was not found in our store.' )
-            else:
-                rentRecordObject = findRecordObjectById( bookStore, int( rentIdToBeReturn ) )
-                rentDate = rentRecordObject.rentDate
-                actualReturnDate = input( '(YYYY-M-D)Return date: ' )
-                if checkValidDateFormat( actualReturnDate ):
-                    if checkLaterDate( rentDate, datetime.strptime(actualReturnDate, '%Y-%m-%d') ):
-                        bookStore.rentRecordStorage.returnBook( datetime.strptime(actualReturnDate, '%Y-%m-%d'), int(rentIdToBeReturn), bookStore.bookStorage )
-                        print( 'Return successfully.' )
-                        printAllRentRecord()
-                        state = 'start'
+            thisBookObject = fineBookObjectById( bookStore, rentRecord.rentedBookIdInt )
+            unReturnedRentRecordIdList.append( rentRecord.rentRecordIdInt )
+            print( f'{ rentRecordCountInt + 1 }. Renter Name: { rentRecord.renterNameStr } Book Name: { thisBookObject.bookNameStr } Rent Date: { rentRecord.rentDate } Expected Return Date: { rentRecord.expectedReturnDate } Actual   return date: { rentRecord.actualReturnDate } Total Revenue: { rentRecord.thisRentRevenueFloat } Rent Id: { rentRecord.rentRecordIdInt }' )
+            rentRecordCountInt += 1
+
+    # if found some rent record
+    if unReturnedRentRecordIdList != []:
+
+        # get rent index to be return and validate it format and existence.
+        rentIndexToBeReturnedTest = TestValidInput()
+        rentIndexToBeReturnedTest.addInputText( 'Rent to return: ' )
+        rentIndexToBeReturnedTest.addValidationFunction( allowOnlyPositiveInt )
+        rentIndexToBeReturnedTest.addErrorMessage( 'Error: input must be only positive int' )
+
+        # check if this record exist in out store
+        rentIndexToBeReturnedTest.addValidationFunction( checkIntInRange, [1, rentRecordCountInt] )
+        rentIndexToBeReturnedTest.addErrorMessage( 'Error: this record does not exist.' )
+        rentIndexToBeReturnInt = rentIndexToBeReturnedTest.executeAllValidation()
+
+        # find rent record object that user want to return.
+        rentRecordObject = findRecordObjectById( bookStore, unReturnedRentRecordIdList[ int( rentIndexToBeReturnInt ) - 1 ] )
+
+        # get rent date of that record.
+        rentDate = rentRecordObject.rentDate
+
+        # get actual return date and validate it format and time of return.
+        actualReturnDateTest = TestValidInput()
+
+        # check actual return date format
+        actualReturnDateTest.addInputText( '(YYYY-M-D)Actual return Date:' )
+        actualReturnDateTest.addValidationFunction( checkValidDateFormat )
+        actualReturnDateTest.addErrorMessage( 'Error: incorrect date.' )
+
+        # check if expected return date is in the future compared to rent date.
+        actualReturnDateTest.addValidationFunction( checkLaterDate, [ str( rentDate ).split( ' ' )[ 0 ] ] )
+        actualReturnDateTest.addErrorMessage( 'Error: actual return date must be in the future.' )
+        actualReturnDate = actualReturnDateTest.executeAllValidation()
+        
+        # return book to our store to calculate fine, rent price and revenue.
+        bookStore.rentRecordStorage.returnBook( datetime.strptime(actualReturnDate, '%Y-%m-%d'), unReturnedRentRecordIdList[ int( rentRecordCountInt ) - 1 ], bookStore.bookStorage )
+        print( 'Return successfully.' )
+        printAllRentRecord()
+        state = 'start'
+    
+    # if no rent record was found.
     else:
         print( 'There is no rent record at this time.' )
         state = 'start'
 
-    # if rentIdToBeReturn == 'x':
-    #     state = 'start'
-
 def viewTotalRevenueInDateRange():
+    ''' view total revenue in our store between specific date range.
+    '''
+    
     global bookStore, state
-    startDate = input( '(YYYY-M-D)Start date: ' )
-    if checkValidDateFormat( startDate ):
-        endDate = input( '(YYYY-M-D)End date: ' )
-        if checkValidDateFormat( endDate ):
-            if checkLaterDate( datetime.strptime(startDate, '%Y-%m-%d'), datetime.strptime(endDate, '%Y-%m-%d') ):
-                revenueInThisDateRange = bookStore.calculateTotalRevenueInDateRange( datetime.strptime(startDate, '%Y-%m-%d'), datetime.strptime(endDate, '%Y-%m-%d') )
-                print( f'Total Revenue in this date range is: {revenueInThisDateRange}' )
-                state = 'start'
+
+    # get and validate start date
+    startDateTest = TestValidInput()
+    startDateTest.addInputText( '(YYYY-M-D)Start Date:' )
+    startDateTest.addValidationFunction( checkValidDateFormat )
+    startDateTest.addErrorMessage( 'Error: incorrect date.' )
+    startDate = startDateTest.executeAllValidation()
+
+    # get end date and validate it format and time of end date.
+    endDateTest = TestValidInput()
+
+    # check actual return date format
+    endDateTest.addInputText( '(YYYY-M-D)Actual return Date:' )
+    endDateTest.addValidationFunction( checkValidDateFormat )
+    endDateTest.addErrorMessage( 'Error: incorrect date.' )
+
+    # check if expected return date is in the future compared to rent date.
+    endDateTest.addValidationFunction( checkLaterDate, [ startDate ] )
+    endDateTest.addErrorMessage( 'Error: actual return date must be in the future.' )
+    endDate = endDateTest.executeAllValidation()
+
+    revenueInThisDateRange = bookStore.calculateTotalRevenueInDateRange( datetime.strptime(startDate, '%Y-%m-%d'), datetime.strptime(endDate, '%Y-%m-%d') )
+    print( f'Total Revenue in this date range is: {revenueInThisDateRange}' )
+    state = 'start'
 
 def viewTheMostPopularBook():
     global bookStore, state
