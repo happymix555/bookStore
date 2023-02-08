@@ -60,7 +60,7 @@ BookStore
         - rentBook()
         - returnBook()
 
-    - TestValidInput
+    - [ WILL BE DEPRECATED ] TestValidInput
         - inputText
         - validationFunctionList
         - errorMessageList
@@ -69,10 +69,33 @@ BookStore
         - addErrorMessage()
         - executeAllValidation()
 
-    - TestValidInputPipeline
+    - [ DEPRECATED ] TestValidInputPipeline
         - testValidInputObject
         - correctInputList
         - executeAllPipeLine()
+
+    - UserInput
+        - validationFunctionList -> to be override in sub class
+        - inputTextForUser
+        - getInputAndValidationLoopUntilAllPassed() -> to be override by sub class
+
+    - UserInputStr( UserInput )
+        - isStringNotEmpty()
+
+    - UserInputPositiveInt( UserInput )
+        - isPositiveInt()
+
+    - UserInputPositiveIntInRange( UserInputPositiveInt )
+        - isPositiveIntInRange()
+
+    - UserInputPositiveFloat( UserInput )
+        - isPositiveFloat()
+
+    - UserInputDate( UserInput )
+        - isValidDateStringFormat()
+
+    - UserInputDateInTheFuture( UserInputDate )
+        - isDateInTheFuture()
 
         
 

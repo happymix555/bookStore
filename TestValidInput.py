@@ -1,3 +1,85 @@
+# TODO make user input and validation to be a class.
+
+class UserInput:
+    ''' this class is use to get user input and compute validation of each input
+    '''
+    def __init__( self, inputText ) -> None:
+        '''
+        '''
+        self.inputText = inputText
+        self.errorMessage = ''
+
+        self._validationFuncToArgsDict = {}
+
+    def setAdditionalValidationFunc( self, validationFunc: callable, validationArgs: dict ):
+        '''
+        '''
+        assert callable( validationFunc )
+
+    def validation( self ):
+        ''' this function must override by subclass
+        '''
+        raise NotImplementedError('Implement this function')
+    
+    def executeAdditionalValidation( self ):
+        '''
+        '''
+        for validationFunc, validationArgs in self._validationFuncToArgsDict.items():
+            validationFunc( **validationArgs )
+
+    def getUserInput( self ):
+        '''
+        '''
+        #   get user input
+        #   validate value
+        #       if fail, retry to get user input
+
+        isPassValidate = self.validation()
+        if not isPassValidate:
+            pass
+        self.executeAdditionalValidation()
+
+        return 
+
+class UserDateInput( UserInput ):
+
+    def __init__(self, inputText) -> None:
+        super().__init__(inputText)
+
+    def _validateDateFormat( self ):
+        '''
+        '''
+        return False
+
+    def _validateDateRange( self ):
+        '''
+        '''
+
+    def validation( self ):
+        '''
+        '''
+        isPassvalidate = self._validateDateFormat()
+        
+        if not isPassvalidate:
+            return False
+    
+        self._validateDateRange()
+
+class UserTextInput( UserInput ):
+    '''
+    '''
+    def __init__(self, inputText) -> None:
+        super().__init__(inputText)
+
+
+
+class UserChoiceInput( UserInput ):
+    def __init__(self, inputText) -> None:
+        super().__init__(inputText)
+    
+
+
+
 class TestValidInput:
     ''' This class used to implement chain of input validation in
         stage by stage manner.
@@ -24,17 +106,24 @@ class TestValidInput:
         self.errorMessageList = []
 
 
-    def addInputText( self, inputText ):
+    def addInputText( self, inputText: str ):
         ''' add input text of this test object.
         '''
+
+        # use assertion to validate type of input
+        assert isinstance( inputText, str ), 'inputText must be type str but got {}[{}]'.format( inputText, type( inputText ) )
+
         self.inputText = inputText
 
-    def addValidationFunction( self, validationFunction, validationFunctionArgumentList = [] ):
+    def addValidationFunction( self, validationFunction, validationFunctionArgumentList = None ):
         ''' add validation function to list of validation function to use with this input.
             validation function should return True if pass else, return False.  
 
             ARGS: validation function, list of argument of validation function in function's input order.    
         '''
+
+        # use assertion to validate type of input
+        # assert isinstance( validationFunction, function ), 'validationFunction must be type function but got {}[{}]'.format( validationFunction, type( validationFunction ) )
 
         # add validation function
         self.validationFunctionList.append( validationFunction )
@@ -42,11 +131,15 @@ class TestValidInput:
         # add argument of validation function
         self.validationFunctionArgumentList.append( validationFunctionArgumentList )
 
-    def addErrorMessage( self, errorMessage ):
+    def addErrorMessage( self, errorMessage: str ):
         ''' add error message of each validation function to be shown to user and help them correct the input.
 
             ARGS: error message to print to user.
         '''
+
+        # use assertion to validate type of input
+        assert isinstance( errorMessage, str ), 'errorMessage must be type str but got {}[{}]'.format( errorMessage, type( errorMessage ) )
+
         self.errorMessageList.append( errorMessage )
 
     def executeAllValidation( self ):

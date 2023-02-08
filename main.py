@@ -1,7 +1,6 @@
 from BookStore import BookStore
 
 from datetime import datetime
-from datetime import date
 from InvalidInputPrevention import *
 from TestValidInput import *
 
@@ -63,7 +62,7 @@ def printUnreturnedRentRecord():
     ''' Print all rent record that has not been returned yet.
     '''
 
-    global bookStore4
+    global bookStore
     rentRecordCountInt = 1
 
     # loop to get each rent record object.
@@ -71,7 +70,7 @@ def printUnreturnedRentRecord():
 
         #if this rent record has not been returned then print it
         if rentRecord.actualReturnDate == None:
-            thisBookObject = fineBookObjectById( bookStore, rentRecord.rentedBookIdInt )
+            thisBookObject = bookStore.bookStorage.findBookObjectById( bookStore, rentRecord.rentedBookIdInt )
             print( f'{rentRecordCountInt}. Renter Name: {rentRecord.renterNameStr} Book Name: { thisBookObject.bookNameStr } Rent Date: {rentRecord.rentDate} Expected Return Date: {rentRecord.expectedReturnDate} Actual return date: {rentRecord.actualReturnDate} Total Revenue: {rentRecord.thisRentRevenueFloat} Rent Id: {rentRecord.rentRecordIdInt}' )
             rentRecordCountInt += 1
     print( '\n' )
@@ -91,20 +90,24 @@ def addBook():
     # take book name from user and execute all validation.
     thisBookNameStr = bookNameStrTest.executeAllValidation()
 
+    # userDateInputObj = UserDateInput( inputText='Insert date' )
+    # dateStr = userDateInputObj.getUserInput()
+
     # flag to tell if this book already exist.
     bookAlreadyExistFlag = 0
 
     # if this book already exist
     for book in bookStore.bookStorage.bookList:
-        if book.bookNameStr == thisBookNameStr:
+        if book.bookNameStr != thisBookNameStr:
+            continue
 
-            # get all information about this book
-            thisBookPricePerDayFloat = book.bookPricePerDayFloat
-            thisBookFineRateFloat = book.bookFineRateFloat
-            
-            # change flag to tell that this book already exist.
-            bookAlreadyExistFlag = 1
-            break
+        # get all information about this book
+        thisBookPricePerDayFloat = book.bookPricePerDayFloat
+        thisBookFineRateFloat = book.bookFineRateFloat
+        
+        # change flag to tell that this book already exist.
+        bookAlreadyExistFlag = 1
+        break
     
     # if this book already exist, use the old information, no need to take further input from user.
     if bookAlreadyExistFlag == 0:
@@ -114,7 +117,7 @@ def addBook():
         testBookPricePerDayFloat.addInputText( 'Book rent price per Day: ' )
         
         # check if book rent price is only a positive float.
-        testBookPricePerDayFloat.addValidationFunction( allowOnlyPositiveFloat )
+        testBookPricePerDayFloat.addValidationFunction( isPositiveFloatValue )
         testBookPricePerDayFloat.addErrorMessage( 'Error: input can only be a positive number.' )
         thisBookPricePerDayFloat = testBookPricePerDayFloat.executeAllValidation()
         
@@ -123,13 +126,12 @@ def addBook():
         testBookFineRateFloat.addInputText( 'Book fine rate: ' )
         
         # check if fine rate is only a positive float.
-        testBookFineRateFloat.addValidationFunction( allowOnlyPositiveFloat )
+        testBookFineRateFloat.addValidationFunction( isPositiveFloatValue )
         testBookFineRateFloat.addErrorMessage( 'Error: input can only be a positive number.' )
         thisBookFineRateFloat = testBookFineRateFloat.executeAllValidation()
 
     # create Book object and add it to a BookStorage in BookStore.
-    bookStore.bookStorage.addBook( thisBookNameStr, float( thisBookPricePerDayFloat ), float( thisBookFineRateFloat ),
-                                    bookStore.bookStorage)
+    bookStore.bookStorage.addBook( thisBookNameStr, float( thisBookPricePerDayFloat ), float( thisBookFineRateFloat ) )
     
     # print all book currently in out store.
     print( 'Now we have these books in our store: ' )
@@ -186,6 +188,11 @@ def rentBook():
     uniqueBookNameList = []
     bookCountInt = 0
     for book in bookStore.bookStorage.bookList:
+
+        # if book available
+        if book.availableStatus != True:
+            continue
+
         if book.bookNameStr not in uniqueBookNameList:
             uniqueBookNameList.append( book.bookNameStr )
 
@@ -206,12 +213,12 @@ def rentBook():
     rentBookIndexStr = rentBookIndexTest.executeAllValidation()
 
     # get renter name
-    renterName = input( 'Renter name: ' )
+    renterNameStr = input( 'Renter name: ' )
 
     # get and validate rent date
     rentDateTest = TestValidInput()
     rentDateTest.addInputText( '(YYYY-M-D)Rent Date:' )
-    rentDateTest.addValidationFunction( checkValidDateFormat )
+    rentDateTest.addValidationFunction( checkValidDateStrFormat )
     rentDateTest.addErrorMessage( 'Error: incorrect date.' )
     rentDate = rentDateTest.executeAllValidation()
 
@@ -220,7 +227,7 @@ def rentBook():
 
     # check expected date format
     expectedReturnDateTest.addInputText( '(YYYY-M-D)Expected return Date:' )
-    expectedReturnDateTest.addValidationFunction( checkValidDateFormat )
+    expectedReturnDateTest.addValidationFunction( checkValidDateStrFormat )
     expectedReturnDateTest.addErrorMessage( 'Error: incorrect date.' )
 
     # check if expected return date is in the future compared to rent date.
@@ -232,8 +239,8 @@ def rentBook():
     thisBookNameStr = uniqueBookNameList[ int( rentBookIndexStr ) - 1 ]
     thisBookIdInt = bookStore.bookStorage.getTheFirstFoundBookIdFromBookName( thisBookNameStr )
 
-    bookStore.rentRecordStorage.rentBook( renterName, datetime.strptime(rentDate, '%Y-%m-%d'), 
-    datetime.strptime(expectedReturnDate, '%Y-%m-%d'), thisBookIdInt, bookStore.bookStorage, bookStore.rentRecordStorage )
+    bookStore.rentBook( renterNameStr, datetime.strptime(rentDate, '%Y-%m-%d'), 
+    datetime.strptime(expectedReturnDate, '%Y-%m-%d'), thisBookIdInt )
     print( 'Rent successfully.' )
     printAllRentRecord()
     state = 'start'
@@ -241,6 +248,7 @@ def rentBook():
 def returnBook():
     ''' Return a book to our store.
     '''
+
     global bookStore, state
 
     # rent record index counter
@@ -249,12 +257,12 @@ def returnBook():
     # store unreturned rent record id in list
     unReturnedRentRecordIdList = [] 
 
-    # loop to get each rent record object.
+    # loop to get each rent record object.rentBook
     for rentRecord in bookStore.rentRecordStorage.rentRecordList:
 
         #if this rent record has not been returned then print it and keep it id.
         if rentRecord.actualReturnDate == None:
-            thisBookObject = fineBookObjectById( bookStore, rentRecord.rentedBookIdInt )
+            thisBookObject = bookStore.bookStorage.findBookObjectById( rentRecord.rentedBookIdInt )
             unReturnedRentRecordIdList.append( rentRecord.rentRecordIdInt )
             print( f'{ rentRecordCountInt + 1 }. Renter Name: { rentRecord.renterNameStr } Book Name: { thisBookObject.bookNameStr } Rent Date: { rentRecord.rentDate } Expected Return Date: { rentRecord.expectedReturnDate } Actual   return date: { rentRecord.actualReturnDate } Total Revenue: { rentRecord.thisRentRevenueFloat } Rent Id: { rentRecord.rentRecordIdInt }' )
             rentRecordCountInt += 1
@@ -274,7 +282,7 @@ def returnBook():
         rentIndexToBeReturnInt = rentIndexToBeReturnedTest.executeAllValidation()
 
         # find rent record object that user want to return.
-        rentRecordObject = findRecordObjectById( bookStore, unReturnedRentRecordIdList[ int( rentIndexToBeReturnInt ) - 1 ] )
+        rentRecordObject = bookStore.rentRecordStorage.findRecordObjectById( unReturnedRentRecordIdList[ int( rentIndexToBeReturnInt ) - 1 ] )
 
         # get rent date of that record.
         rentDate = rentRecordObject.rentDate
@@ -284,7 +292,7 @@ def returnBook():
 
         # check actual return date format
         actualReturnDateTest.addInputText( '(YYYY-M-D)Actual return Date:' )
-        actualReturnDateTest.addValidationFunction( checkValidDateFormat )
+        actualReturnDateTest.addValidationFunction( checkValidDateStrFormat )
         actualReturnDateTest.addErrorMessage( 'Error: incorrect date.' )
 
         # check if expected return date is in the future compared to rent date.
@@ -293,7 +301,7 @@ def returnBook():
         actualReturnDate = actualReturnDateTest.executeAllValidation()
         
         # return book to our store to calculate fine, rent price and revenue.
-        bookStore.rentRecordStorage.returnBook( datetime.strptime(actualReturnDate, '%Y-%m-%d'), unReturnedRentRecordIdList[ int( rentRecordCountInt ) - 1 ], bookStore.bookStorage )
+        bookStore.returnBook( unReturnedRentRecordIdList[ int( rentRecordCountInt ) - 1 ], datetime.strptime(actualReturnDate, '%Y-%m-%d') )
         print( 'Return successfully.' )
         printAllRentRecord()
         state = 'start'
@@ -302,6 +310,7 @@ def returnBook():
     else:
         print( 'There is no rent record at this time.' )
         state = 'start'
+    print( '\n' )
 
 def viewTotalRevenueInDateRange():
     ''' view total revenue in our store between specific date range.
@@ -312,7 +321,7 @@ def viewTotalRevenueInDateRange():
     # get and validate start date
     startDateTest = TestValidInput()
     startDateTest.addInputText( '(YYYY-M-D)Start Date:' )
-    startDateTest.addValidationFunction( checkValidDateFormat )
+    startDateTest.addValidationFunction( checkValidDateStrFormat )
     startDateTest.addErrorMessage( 'Error: incorrect date.' )
     startDate = startDateTest.executeAllValidation()
 
@@ -321,7 +330,7 @@ def viewTotalRevenueInDateRange():
 
     # check actual return date format
     endDateTest.addInputText( '(YYYY-M-D)Actual return Date:' )
-    endDateTest.addValidationFunction( checkValidDateFormat )
+    endDateTest.addValidationFunction( checkValidDateStrFormat )
     endDateTest.addErrorMessage( 'Error: incorrect date.' )
 
     # check if expected return date is in the future compared to rent date.
@@ -343,34 +352,34 @@ def viewTheMostPopularBook():
     global bookStore, state
 
     # get book name and it number of rent time.
-    bookNameList, bookNumberOfRentList = bookStore.viewTheMostPopularBook()
+    sortedBookNameStrToNumberOfRentDict = bookStore.viewTheMostPopularBook()
 
     # print result to user.
     popularityNumberInt = 1
-    for bookIndex in range( len( bookNameList ) ):
-        print( f'{ popularityNumberInt }. Book name: { bookNameList[ bookIndex ] }, Number of rent times: { bookNumberOfRentList[ bookIndex ] }' )
+    for bookName in sortedBookNameStrToNumberOfRentDict:
+        print( f'{ popularityNumberInt }. Book name: { bookName }, Number of rent times: { sortedBookNameStrToNumberOfRentDict[ bookName ] }' )
         popularityNumberInt += 1
     print( '\n' )
     state = 'start'
 
-
+# TODO do not use global variable, throw it in each function called.
 # main loop
 def main():
+
+    global bookStore, state
+
     # create bookStore object
     bookStore = BookStore()
 
 
     # mock adding book to store
-    bookStore.bookStorage.addBook( 'book1', float( 10 ), float( 1.5 ),
-        bookStore.bookStorage )
-    bookStore.bookStorage.addBook( 'book2', float( 15 ), float( 1.5 ),
-        bookStore.bookStorage )
-    bookStore.bookStorage.addBook( 'book3', float( 20 ), float( 1.5 ),
-        bookStore.bookStorage )
+    bookStore.bookStorage.addBook( 'book1', float( 10 ), float( 1.5 ) )
+    bookStore.bookStorage.addBook( 'book2', float( 15 ), float( 1.5 ) )
+    bookStore.bookStorage.addBook( 'book3', float( 20 ), float( 1.5 ) )
 
     # initial state, show available options.
     state = 'start'
-    while 1:
+    while True:
         if state == 'start':
             print( 'Welcome to Yannix book store.' )
             print( 'Please select the option that you want.' )

@@ -2,14 +2,27 @@ from RentRecord import RentRecord
 from datetime import date
 
 class RentRecordStorage:
-    ''' This class used for storing all RentRecord object.
+    ''' This class used for storing and manipulating RentRecord object.
     '''
 
     def __init__( self ):
 
         # create list to store RentRecord object.
         self.rentRecordList = []
+
+    def addNewRentRecordToStorage( self, rentRecord: RentRecord ):
+        ''' This function is used to add a new rent record object to rent record storage.
+
+            ARGS: rent record object
+        '''
+
+        # use assertion to check type of input
+        assert isinstance( rentRecord, RentRecord ), 'rentRecord must be type RentRecord but got {}[{}]'.format( rentRecord, type( rentRecord ) )
+
+        # add new rent record object to rent record storage.
+        self.rentRecordList.append( rentRecord )
         
+    # TODO: use this function in rent code.
     def createRentRecord( self, renterNameStr: str, rentDate: date, expectedReturnDate: date,
     rentedBookIdInt: int):
         ''' create rent record to store information about this rent.
@@ -33,48 +46,112 @@ class RentRecordStorage:
         # add a new rent record to storage list.
         self.rentRecordList.append( thisRentRecord )
 
-    def changeRentRecordStatusToReturned( self, actualReturnDate, rentRecordIdInt, bookStorageObject ):
-        ''' change status of rent record when user return a book.
+    def calculateRentPrice( self, rentRecordIdInt: int, bookRentPricePerDayFloat: float ):
+        ''' This function is used to calculate rent price and update it in a specific rent record.
 
-            ARGS: return date, rent record id, BookStorage object
+            ARGS: rent record id, book fine rate per day
         '''
 
-        # loop get all record in rent record list
-        for record in self.rentRecordList:
+        # use assertion to check type of input
+        assert isinstance( rentRecordIdInt, int ), 'rentRecordIdInt must be type int but got {}[{}]'.format( rentRecordIdInt, type( rentRecordIdInt ) )
+        assert isinstance( bookRentPricePerDayFloat, float ), 'bookRentPricePerDayFloat must be type float but got {}[{}]'.format( bookRentPricePerDayFloat, type( bookRentPricePerDayFloat ) )
 
-            # if rent record != the record to be return, do nothing
-            if record.rentRecordIdInt != rentRecordIdInt:
-                continue
+        # get this rent record object
+        thisRentRecord = self.findRecordObjectById( rentRecordIdInt )
 
-            # if rent record == the record to be return
-            # loop get each book in book storage list
-            for book in bookStorageObject.bookList:
+        # get rent date
+        thisRentDate = thisRentRecord.rentDate
 
-                # if book != book rented in this record, do nothing
-                if book.bookIdInt != record.rentedBookIdInt:
-                    continue
-                
-                # if book == book rented in this record, returning this book
-                # change book status to available
-                book.availableStatus = True
-                
-                # calculate fine
-                record.calculateFine( actualReturnDate, bookStorageObject )
+        # get actual return date
+        thisActualReturnDate = thisRentRecord.actualReturnDate
 
-                # calculate rent price
-                record.calculateRentPrice( bookStorageObject )
+        # time of rent
+        numberOfDayRentedInDay = (thisActualReturnDate - thisRentDate).days
 
-                # calculate revenue
-                record.calculateRevenue()
-                break
+        # calculate rent price
+        thisRentRecord.totalRentPrice = numberOfDayRentedInDay * bookRentPricePerDayFloat
 
-    def findRecordObjectById( self, rentRecordIdInt ):
+    def calculateFine( self, rentRecordIdInt: int, bookFineRateFloat: int, bookRentPricePerDayFloat: int ):
+        ''' This function is used for calculate fine, if any, and update it in this rent record.
+
+            ARGS: rent record id, book fine rate, book rent price per day
+        '''
+
+        # use assertion to check type of input
+        assert isinstance( rentRecordIdInt, int ), 'rentRecordIdInt must be type int but got {}[{}]'.format( rentRecordIdInt, type( rentRecordIdInt ) )
+        assert isinstance( bookFineRateFloat, float ), 'bookFineRateFloat must be type float but got {}[{}]'.format( bookFineRateFloat, type( bookFineRateFloat ) )
+        assert isinstance( bookRentPricePerDayFloat, float ), 'bookRentPricePerDayFloat must be type float but got {}[{}]'.format( bookRentPricePerDayFloat, type( bookRentPricePerDayFloat ) )
+
+        # get this rent record object
+        thisRentRecord = self.findRecordObjectById( rentRecordIdInt )
+
+        # get actual return date
+        thisActualReturnDate = thisRentRecord.actualReturnDate
+
+        # get expected return date
+        thisExpectedReturnDate = thisRentRecord.expectedReturnDate
+
+        # get late return date in day
+        thisLateReturnInDay = ( thisActualReturnDate - thisExpectedReturnDate ).days
+
+        # if return book in time, there is no fine
+        thisRentRecord.totalFine = 0.0
+
+        # if return book late, calculate the fine
+        if thisLateReturnInDay >= 0:
+            thisRentRecord.totalFine = thisLateReturnInDay * bookRentPricePerDayFloat * bookFineRateFloat
+
+    def calculateTotalRevenue( self, rentRecordIdInt: int ):
+        ''' This function is used for calculate total revenue( rent price + fine ) of this rent record.
+
+            ARGS: rent record id
+        '''
+
+        # use assertion to check type of input
+        assert isinstance( rentRecordIdInt, int ), 'rentRecordIdInt must be type int but got {}[{}]'.format( rentRecordIdInt, type( rentRecordIdInt ) )
+
+        # get this rent record object
+        thisRentRecord = self.findRecordObjectById( rentRecordIdInt )
+
+        # get rent price
+        thisRentPrice = thisRentRecord.totalRentPrice
+
+        # get fine 
+        thisFine = thisRentRecord.totalFine
+
+        # calculate total revenue
+        thisRentRecord.thisRentRevenueFloat = thisRentPrice + thisFine
+
+
+    def changeRentRecordStatusToReturned( self, rentRecordIdInt: int, actualReturnDate: date ):
+        ''' change status of rent record when user return a book.
+            this return status of record is derived from actual return date,
+            if actual return date is not None, then this record is returned.
+
+            ARGS: rent record id, actual return date
+        '''
+
+        # use assertion to check type of input
+        assert isinstance( rentRecordIdInt, int ), 'rentRecordIdInt must be type int but got {}[{}]'.format( rentRecordIdInt, type( rentRecordIdInt ) )
+        assert isinstance( actualReturnDate, date ), 'actualReturnDate must be type date but got {}[{}]'.format( actualReturnDate, type( actualReturnDate ) )
+        
+        # get this record object
+        thisRentRecord = self.findRecordObjectById( rentRecordIdInt )
+
+        # store actual return date to this rent record actual return date
+        thisRentRecord.actualReturnDate = actualReturnDate
+
+
+    def findRecordObjectById( self, rentRecordIdInt: int ):
         ''' find rent record object by its id.
 
             ARGS: rent record id
 
             RETURN: RentRecord object
         '''
+
+        # use assertion to check type of input
+        assert isinstance( rentRecordIdInt, int ), 'rentRecordIdInt must be type int but got {}[{}]'.format( rentRecordIdInt, type( rentRecordIdInt ) )
 
         for rentRecord in self.rentRecordList:
             if rentRecord.rentRecordIdInt == rentRecordIdInt:

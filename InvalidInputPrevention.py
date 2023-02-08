@@ -1,34 +1,18 @@
 from datetime import datetime
 
-#   isFloatValue
-def allowOnlyFloat( userInput ):
+def isFloatValue( userInput ):
     ''' check weather or not user input a number.
 
         ARGS: user input
     '''
     return isinstance( userInput, float )
 
-    try:
-        float( userInput )
-        return True
-    except:
-        return False
-
-#   isPositiveFloatValue
-def allowOnlyPositiveFloat( userInput ):
+def isPositiveFloatValue( userInput ):
     ''' check if user input a positive number( float or int).
 
         ARGS: user input
     '''
-    return isinstance( userInput, float ) and userInput >= 0
-
-    try:
-        if float( userInput ) >= 0:
-            return True
-        else:
-            return False
-    except:
-        return False
+    return isinstance( float( userInput ), float ) and float( userInput ) >= 0
 
 
 def allowOnlyInt( userInput ):
@@ -38,8 +22,7 @@ def allowOnlyInt( userInput ):
     '''
 
     try:
-        int( userInput )
-        return True
+        return isinstance( userInput, int )
     except:
         return False
     
@@ -49,11 +32,7 @@ def allowOnlyPositiveInt( userInput ):
         ARGS: user input
     '''
     try:
-        if int( userInput ) >= 0:
-            return True
-        else:
-            return False
-        
+        return int( userInput ) >= 0
     except:
         return False
         
@@ -63,9 +42,6 @@ def checkIntInRange( userInput, lowerBound, upperBound ):
         ARGS: user input, lower bound , upper bound
     '''
     return lowerBound <= int(userInput) <= upperBound
-    #     return True
-    # else:
-    #     return False
 
 def checkValidDateStrFormat( dateStr ):
     ''' check if user input date with correct format.
@@ -89,7 +65,7 @@ def checkLaterDate( toBeLaterDate, currentDate ):
 
         ARGS: date that is intended to be in the future, reference date.
     '''
-    #   TODO: use datetime lib to compute this
+    #   TODO: use datetime lib to compute this ( why? )
 
     # convert string to datetime datatype.
     toBeLaterDate = datetime.strptime(toBeLaterDate, '%Y-%m-%d')
