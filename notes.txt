@@ -79,7 +79,7 @@ BookStore
         - inputTextForUser
         - getInputAndValidationLoopUntilAllPassed() -> to be override by sub class
 
-    - UserInputStr( UserInput )
+    - UserInputNotEmptyStr( UserInput )
         - isStringNotEmpty()
 
     - UserInputPositiveInt( UserInput )
