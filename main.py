@@ -310,7 +310,6 @@ def viewTheMostPopularBook():
     print( '\n' )
     state = 'start'
 
-# TODO do not use global variable, throw it in each function called.
 # main loop
 def main():
 
