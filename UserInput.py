@@ -171,6 +171,40 @@ class UserInputPositiveIntInRange( UserInputPositiveInt ):
 
             # if input not in range
             return False, 'Error: Input must in between {} to {}'.format( lowerBound, upperBound )
+        
+
+class UserInputPositiveFloat( UserInput ):
+    ''' This class is used to check if user input a positive float.
+    '''
+
+    def __init__( self, outputTextForUser: str ):
+        '''
+        '''
+
+        super().__init__( outputTextForUser )
+
+        # add validation function and its argument to dict.
+        self._validationFunctionToArgumentDict[ self.isPositiveFloat ] = None
+
+    def isPositiveFloat( self, userInput ):
+        ''' check if user input a positive number( float or int).
+
+            ARGS: user input
+        '''
+
+        # if user input is positive float
+        try:
+            if isinstance( float( userInput ), float ) and float( userInput ) >= 0:
+                return True, None
+            else:
+
+                # if user input is negative float
+                return False, 'Error: This field must be only positive float.'
+        except:
+
+            # if user input is not a float at all.
+            return False, 'Error: This field must be only positive float.'
+
 
 
 
@@ -184,6 +218,10 @@ if __name__ == '__main__':
     # mockUserInputPositiveInt = mockUserInputPositiveIntValidation.getInputAndRunValidationLoopUntilAllPassed()
 
 
-    mockUserInputPositiveIntInRangeValidation = UserInputPositiveIntInRange( 'Please input a positive int in range 1 to 9: ', 1, 9 )
-    mockUserInputPositiveIntInRange = mockUserInputPositiveIntInRangeValidation.getInputAndRunValidationLoopUntilAllPassed()
-    print( mockUserInputPositiveIntInRange )
+    # mockUserInputPositiveIntInRangeValidation = UserInputPositiveIntInRange( 'Please input a positive int in range 1 to 9: ', 1, 9 )
+    # mockUserInputPositiveIntInRange = mockUserInputPositiveIntInRangeValidation.getInputAndRunValidationLoopUntilAllPassed()
+    # print( mockUserInputPositiveIntInRange )
+
+    mockUserInputPositiveFloatValidation = UserInputPositiveFloat( 'Please input a positive float' )
+    mockUserInputPositiveFloat = mockUserInputPositiveFloatValidation.getInputAndRunValidationLoopUntilAllPassed()
+    print( mockUserInputPositiveFloat )
