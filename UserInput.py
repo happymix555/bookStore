@@ -1,3 +1,5 @@
+from datetime import datetime
+
 class UserInput:
     ''' This class is used to take user input and validate it,
         before returning it for later usage.
@@ -119,7 +121,7 @@ class UserInputPositiveInt( UserInput ):
             self.isPositiveInt: None,
         }
 
-    def isPositiveInt( self, inputInt: int ):
+    def isPositiveInt( self, inputInt: str ):
         ''' This function is used to check if user input a positive integer.
         '''
 
@@ -158,7 +160,7 @@ class UserInputPositiveIntInRange( UserInputPositiveInt ):
         self._validationFunctionToArgumentDict[ self.isPositiveIntInRange ] = { 'lowerBound': self.lowerBound, 'upperBound': self.upperBound }
 
 
-    def isPositiveIntInRange( self, inputInt: int, lowerBound: int, upperBound: int ):
+    def isPositiveIntInRange( self, inputInt: str, lowerBound: int, upperBound: int ):
         ''' check if user input is in this range
 
             ARGS: user input, lower bound , upper bound
@@ -186,7 +188,7 @@ class UserInputPositiveFloat( UserInput ):
         # add validation function and its argument to dict.
         self._validationFunctionToArgumentDict[ self.isPositiveFloat ] = None
 
-    def isPositiveFloat( self, userInput ):
+    def isPositiveFloat( self, userInput: str ):
         ''' check if user input a positive number( float or int).
 
             ARGS: user input
@@ -205,8 +207,36 @@ class UserInputPositiveFloat( UserInput ):
             # if user input is not a float at all.
             return False, 'Error: This field must be only positive float.'
 
+class UserInputDate( UserInput ):
+    ''' This class is used to check user input to comply with our date string format.
+    '''
 
+    def __init__( self, outputTextForUser: str ):
+        '''
+        '''
 
+        super().__init__( outputTextForUser )
+
+        # add validation function and its argument to dict.
+        self._validationFunctionToArgumentDict[ self.isDateStrFormatCorrect ] = None
+
+    def isDateStrFormatCorrect( self, userInputStr: str ):
+        ''' check if user input date with correct format.
+            format is YYYY-MM-DD
+
+            ARGS: user input
+        '''
+
+        # try to to use strptime function to cast string date to datetime object
+        try:
+            datetime.strptime( userInputStr, '%Y-%m-%d' )
+
+        # if failed, it will raise value error
+        except ValueError:
+            return False, 'Error: Invalid date format.'
+
+        # else return True
+        return True, None
 
 
 
@@ -222,6 +252,10 @@ if __name__ == '__main__':
     # mockUserInputPositiveIntInRange = mockUserInputPositiveIntInRangeValidation.getInputAndRunValidationLoopUntilAllPassed()
     # print( mockUserInputPositiveIntInRange )
 
-    mockUserInputPositiveFloatValidation = UserInputPositiveFloat( 'Please input a positive float' )
-    mockUserInputPositiveFloat = mockUserInputPositiveFloatValidation.getInputAndRunValidationLoopUntilAllPassed()
-    print( mockUserInputPositiveFloat )
+    # mockUserInputPositiveFloatValidation = UserInputPositiveFloat( 'Please input a positive float: ' )
+    # mockUserInputPositiveFloat = mockUserInputPositiveFloatValidation.getInputAndRunValidationLoopUntilAllPassed()
+    # print( mockUserInputPositiveFloat )
+
+    mockUserInputDateStrValidation = UserInputDate( 'Please input a date: ' )
+    mockUserInputDateStr = mockUserInputDateStrValidation.getInputAndRunValidationLoopUntilAllPassed()
+    print( mockUserInputDateStr )
