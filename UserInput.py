@@ -237,7 +237,36 @@ class UserInputDate( UserInput ):
 
         # else return True
         return True, None
+    
+class UserInputDateInTheFuture( UserInputDate ):
+    ''' This class is used to check date input from user to be in the future,
+        compared to a reference date.
+    '''
 
+    def __init__( self, outputTextForUser: str, referenceDate: datetime ):
+        '''
+        '''
+
+        super().__init__( outputTextForUser )
+
+        self.referenceDate = referenceDate
+
+        # add validation function and its argument to dict.
+        self._validationFunctionToArgumentDict[ self.isDateInTheFuture ] = {'referenceDate': self.referenceDate}
+
+    def isDateInTheFuture( self, userInputDateStr: str, referenceDate: datetime ):
+        ''' check if user input date is in the future compared to a reference date.
+
+            ARGS: reference date, user input date that should be in the future.
+        '''
+
+        # convert string to datetime datatype.
+        userInputDateObj = datetime.strptime(userInputDateStr, '%Y-%m-%d')
+
+        if userInputDateObj.day - referenceDate.day >= 1:
+            return True, None
+        else:
+            return False, 'Error: This date must be in the future compared to {}'.format( referenceDate )
 
 
 
@@ -256,6 +285,10 @@ if __name__ == '__main__':
     # mockUserInputPositiveFloat = mockUserInputPositiveFloatValidation.getInputAndRunValidationLoopUntilAllPassed()
     # print( mockUserInputPositiveFloat )
 
-    mockUserInputDateStrValidation = UserInputDate( 'Please input a date: ' )
-    mockUserInputDateStr = mockUserInputDateStrValidation.getInputAndRunValidationLoopUntilAllPassed()
-    print( mockUserInputDateStr )
+    # mockUserInputDateStrValidation = UserInputDate( 'Please input a date: ' )
+    # mockUserInputDateStr = mockUserInputDateStrValidation.getInputAndRunValidationLoopUntilAllPassed()
+    # print( mockUserInputDateStr )
+
+    mockUserInputDateInTheFutureValidation = UserInputDateInTheFuture( 'Please input a date in the future: ', datetime(2023, 2, 3) )
+    mockUserInputDateInTheFuture = mockUserInputDateInTheFutureValidation.getInputAndRunValidationLoopUntilAllPassed()
+    print( mockUserInputDateInTheFuture )
