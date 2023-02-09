@@ -83,7 +83,7 @@ def addBook():
     global bookStore, state
 
     # create book name test object
-    bookNameStrTest = UserInputNotEmptyStr( 'Book name: ' )
+    bookNameStrTest = UserInputText( 'Book name: ' )
 
     # take book name from user and execute all validation.
     thisBookNameStr = bookNameStrTest.getInputAndRunValidationLoopUntilAllPassed()
@@ -120,7 +120,7 @@ def addBook():
         thisBookFineRateFloat = testBookFineRateFloat.getInputAndRunValidationLoopUntilAllPassed()
 
     # create Book object and add it to a BookStorage in BookStore.
-    bookStore.bookStorage.addBook( thisBookNameStr, float( thisBookPricePerDayFloat ), float( thisBookFineRateFloat ) )
+    bookStore.bookStorage.addBook( thisBookNameStr, thisBookPricePerDayFloat, thisBookFineRateFloat )
     
     # print all book currently in out store.
     print( 'Now we have these books in our store: ' )
@@ -151,9 +151,9 @@ def removeBook():
 
     # check if input is in bookCountInt's range to ensure that user select only the book that
     # exist in our store.
-    bookIndexToBeRemovedInt = bookIdToBeRemovedTest.getInputAndRunValidationLoopUntilAllPassed()
+    bookIndexToBeRemovedStr = bookIdToBeRemovedTest.getInputAndRunValidationLoopUntilAllPassed()
 
-    bookStore.bookStorage.removeBook( int( allBookIdList[ int( bookIndexToBeRemovedInt ) - 1 ] ) )
+    bookStore.bookStorage.removeBook( int( allBookIdList[ int( bookIndexToBeRemovedStr ) - 1 ] ) )
     print( 'Book was removed successfully.' )
     print( 'This is all book left in our store.' )
     printAllBookInStore()
@@ -190,7 +190,7 @@ def rentBook():
     rentBookIndexStr = rentBookIndexTest.getInputAndRunValidationLoopUntilAllPassed()
 
     # get renter name
-    renterNameStrTest = UserInputNotEmptyStr( 'Renter name: ' )
+    renterNameStrTest = UserInputText( 'Renter name: ' )
 
     # take book name from user and execute all validation.
     renterNameStr = renterNameStrTest.getInputAndRunValidationLoopUntilAllPassed()
@@ -200,7 +200,7 @@ def rentBook():
     rentDate = rentDateTest.getInputAndRunValidationLoopUntilAllPassed()
 
     # get and validate expected return date
-    expectedReturnDateTest = UserInputDateInTheFuture( '(YYYY-M-D)Expected return Date: ', datetime.strptime(rentDate, '%Y-%m-%d') )
+    expectedReturnDateTest = UserInputDateInTheFuture( '(YYYY-M-D)Expected return Date: ', rentDate )
 
     # check if expected return date is in the future compared to rent date.
     expectedReturnDate = expectedReturnDateTest.getInputAndRunValidationLoopUntilAllPassed()
@@ -209,8 +209,8 @@ def rentBook():
     thisBookNameStr = uniqueBookNameList[ int( rentBookIndexStr ) - 1 ]
     thisBookIdInt = bookStore.bookStorage.getTheFirstFoundBookIdFromBookName( thisBookNameStr )
 
-    bookStore.rentBook( renterNameStr, datetime.strptime(rentDate, '%Y-%m-%d'), 
-    datetime.strptime(expectedReturnDate, '%Y-%m-%d'), thisBookIdInt )
+    bookStore.rentBook( renterNameStr, rentDate, 
+    expectedReturnDate, thisBookIdInt )
     print( 'Rent successfully.' )
     printAllRentRecord()
     state = 'start'
@@ -247,19 +247,19 @@ def returnBook():
         rentIndexToBeReturnInt = rentIndexToBeReturnedTest.getInputAndRunValidationLoopUntilAllPassed()
 
         # find rent record object that user want to return.
-        rentRecordObject = bookStore.rentRecordStorage.findRecordObjectById( unReturnedRentRecordIdList[ int( rentIndexToBeReturnInt ) - 1 ] )
+        rentRecordObject = bookStore.rentRecordStorage.findRecordObjectById( unReturnedRentRecordIdList[ rentIndexToBeReturnInt - 1 ] )
 
         # get rent date of that record.
         rentDate = rentRecordObject.rentDate
 
-        # get actual return date and validate it format and time of return.
+        # get actual return date and validate it format.
         actualReturnDateTest = UserInputDateInTheFuture( '(YYYY-M-D)Actual return Date: ', rentDate )
 
         # check if expected return date is in the future compared to rent date.
         actualReturnDate = actualReturnDateTest.getInputAndRunValidationLoopUntilAllPassed()
         
         # return book to our store to calculate fine, rent price and revenue.
-        bookStore.returnBook( unReturnedRentRecordIdList[ int( rentRecordCountInt ) - 1 ], datetime.strptime(actualReturnDate, '%Y-%m-%d') )
+        bookStore.returnBook( unReturnedRentRecordIdList[ rentRecordCountInt - 1 ], actualReturnDate )
         print( 'Return successfully.' )
         printAllRentRecord()
         state = 'start'
@@ -281,13 +281,13 @@ def viewTotalRevenueInDateRange():
     startDate = startDateTest.getInputAndRunValidationLoopUntilAllPassed()
 
     # get end date and validate it format and time of end date.
-    endDateTest = UserInputDateInTheFuture( '(YYYY-M-D)Actual return Date: ', datetime.strptime(startDate, '%Y-%m-%d') )
+    endDateTest = UserInputDateInTheFuture( '(YYYY-M-D)Actual return Date: ', startDate )
 
     # check if expected return date is in the future compared to rent date.
     endDate = endDateTest.getInputAndRunValidationLoopUntilAllPassed()
 
     # calculate revenue within this date range.
-    revenueInThisDateRange = bookStore.calculateTotalRevenueInDateRange( datetime.strptime(startDate, '%Y-%m-%d'), datetime.strptime(endDate, '%Y-%m-%d') )
+    revenueInThisDateRange = bookStore.calculateTotalRevenueInDateRange( startDate, endDate )
     
     # print revenue to user.
     print( f'Total Revenue in this date range is: {revenueInThisDateRange}' )
