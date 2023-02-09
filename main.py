@@ -3,6 +3,7 @@ from BookStore import BookStore
 from datetime import datetime
 from InvalidInputPrevention import *
 from TestValidInput import *
+from UserInput import *
 
 
 def printAllBookInStore():
@@ -82,16 +83,10 @@ def addBook():
     global bookStore, state
 
     # create book name test object
-    bookNameStrTest = TestValidInput()
-    bookNameStrTest.addInputText( 'Book name: ' )
-    bookNameStrTest.addValidationFunction( checkStringNotEmpty )
-    bookNameStrTest.addErrorMessage( 'Error: Book name cannot left empty' )
+    bookNameStrTest = UserInputNotEmptyStr( 'Book name: ' )
 
     # take book name from user and execute all validation.
-    thisBookNameStr = bookNameStrTest.executeAllValidation()
-
-    # userDateInputObj = UserDateInput( inputText='Insert date' )
-    # dateStr = userDateInputObj.getUserInput()
+    thisBookNameStr = bookNameStrTest.getInputAndRunValidationLoopUntilAllPassed()
 
     # flag to tell if this book already exist.
     bookAlreadyExistFlag = 0
@@ -113,22 +108,16 @@ def addBook():
     if bookAlreadyExistFlag == 0:
 
         # get rent price per day of this book through TestValidInput class.
-        testBookPricePerDayFloat = TestValidInput()
-        testBookPricePerDayFloat.addInputText( 'Book rent price per Day: ' )
+        testBookPricePerDayFloat = UserInputPositiveFloat( 'Book rent price per Day: ' )
         
         # check if book rent price is only a positive float.
-        testBookPricePerDayFloat.addValidationFunction( isPositiveFloatValue )
-        testBookPricePerDayFloat.addErrorMessage( 'Error: input can only be a positive number.' )
-        thisBookPricePerDayFloat = testBookPricePerDayFloat.executeAllValidation()
+        thisBookPricePerDayFloat = testBookPricePerDayFloat.getInputAndRunValidationLoopUntilAllPassed()
         
         # get fine rate of this book through TestValidInput class.
-        testBookFineRateFloat = TestValidInput()
-        testBookFineRateFloat.addInputText( 'Book fine rate: ' )
+        testBookFineRateFloat = UserInputPositiveFloat( 'Book fine rate: ' )
         
         # check if fine rate is only a positive float.
-        testBookFineRateFloat.addValidationFunction( isPositiveFloatValue )
-        testBookFineRateFloat.addErrorMessage( 'Error: input can only be a positive number.' )
-        thisBookFineRateFloat = testBookFineRateFloat.executeAllValidation()
+        thisBookFineRateFloat = testBookFineRateFloat.getInputAndRunValidationLoopUntilAllPassed()
 
     # create Book object and add it to a BookStorage in BookStore.
     bookStore.bookStorage.addBook( thisBookNameStr, float( thisBookPricePerDayFloat ), float( thisBookFineRateFloat ) )
@@ -158,18 +147,11 @@ def removeBook():
             bookCountInt += 1
 
     # get input from user in form of index of which book to be removed.
-    bookIdToBeRemovedTest = TestValidInput()
-    bookIdToBeRemovedTest.addInputText( 'Book to be removed: ' )
-
-    # check if input is a positive integer
-    bookIdToBeRemovedTest.addValidationFunction( allowOnlyPositiveInt ) 
-    bookIdToBeRemovedTest.addErrorMessage( 'Error: Input can only be a positive integer' )
+    bookIdToBeRemovedTest = UserInputPositiveIntInRange( 'Book to be removed: ', 1, bookCountInt )
 
     # check if input is in bookCountInt's range to ensure that user select only the book that
     # exist in our store.
-    bookIdToBeRemovedTest.addValidationFunction( checkIntInRange, [1, bookCountInt] )
-    bookIdToBeRemovedTest.addErrorMessage( 'This book dose not exist.' )
-    bookIndexToBeRemovedInt = bookIdToBeRemovedTest.executeAllValidation()
+    bookIndexToBeRemovedInt = bookIdToBeRemovedTest.getInputAndRunValidationLoopUntilAllPassed()
 
     bookStore.bookStorage.removeBook( int( allBookIdList[ int( bookIndexToBeRemovedInt ) - 1 ] ) )
     print( 'Book was removed successfully.' )
@@ -202,38 +184,26 @@ def rentBook():
     
 
     # get check if user input a positive integer
-    rentBookIndexTest = TestValidInput()
-    rentBookIndexTest.addInputText( 'Book to be rent: ' )
-    rentBookIndexTest.addValidationFunction( allowOnlyPositiveInt )
-    rentBookIndexTest.addErrorMessage( 'Error: input must be only positive int' )
+    rentBookIndexTest = UserInputPositiveIntInRange( 'Book to be rent: ', 1, bookCountInt )
 
     # check if this book exist in out store
-    rentBookIndexTest.addValidationFunction( checkIntInRange, [1, bookCountInt] )
-    rentBookIndexTest.addErrorMessage( 'Error: this book does not exist.' )
-    rentBookIndexStr = rentBookIndexTest.executeAllValidation()
+    rentBookIndexStr = rentBookIndexTest.getInputAndRunValidationLoopUntilAllPassed()
 
     # get renter name
-    renterNameStr = input( 'Renter name: ' )
+    renterNameStrTest = UserInputNotEmptyStr( 'Renter name: ' )
+
+    # take book name from user and execute all validation.
+    renterNameStr = renterNameStrTest.getInputAndRunValidationLoopUntilAllPassed()
 
     # get and validate rent date
-    rentDateTest = TestValidInput()
-    rentDateTest.addInputText( '(YYYY-M-D)Rent Date:' )
-    rentDateTest.addValidationFunction( checkValidDateStrFormat )
-    rentDateTest.addErrorMessage( 'Error: incorrect date.' )
-    rentDate = rentDateTest.executeAllValidation()
+    rentDateTest = UserInputDate( '(YYYY-M-D)Rent Date: ' )
+    rentDate = rentDateTest.getInputAndRunValidationLoopUntilAllPassed()
 
     # get and validate expected return date
-    expectedReturnDateTest = TestValidInput()
-
-    # check expected date format
-    expectedReturnDateTest.addInputText( '(YYYY-M-D)Expected return Date:' )
-    expectedReturnDateTest.addValidationFunction( checkValidDateStrFormat )
-    expectedReturnDateTest.addErrorMessage( 'Error: incorrect date.' )
+    expectedReturnDateTest = UserInputDateInTheFuture( '(YYYY-M-D)Expected return Date: ', datetime.strptime(rentDate, '%Y-%m-%d') )
 
     # check if expected return date is in the future compared to rent date.
-    expectedReturnDateTest.addValidationFunction( checkLaterDate, [ rentDate ] )
-    expectedReturnDateTest.addErrorMessage( 'Error: expected return date must be in the future.' )
-    expectedReturnDate = expectedReturnDateTest.executeAllValidation()
+    expectedReturnDate = expectedReturnDateTest.getInputAndRunValidationLoopUntilAllPassed()
 
     # get book name
     thisBookNameStr = uniqueBookNameList[ int( rentBookIndexStr ) - 1 ]
@@ -271,15 +241,10 @@ def returnBook():
     if unReturnedRentRecordIdList != []:
 
         # get rent index to be return and validate it format and existence.
-        rentIndexToBeReturnedTest = TestValidInput()
-        rentIndexToBeReturnedTest.addInputText( 'Rent to return: ' )
-        rentIndexToBeReturnedTest.addValidationFunction( allowOnlyPositiveInt )
-        rentIndexToBeReturnedTest.addErrorMessage( 'Error: input must be only positive int' )
+        rentIndexToBeReturnedTest = UserInputPositiveIntInRange( 'Rent to return: ', 1, rentRecordCountInt )
 
         # check if this record exist in out store
-        rentIndexToBeReturnedTest.addValidationFunction( checkIntInRange, [1, rentRecordCountInt] )
-        rentIndexToBeReturnedTest.addErrorMessage( 'Error: this record does not exist.' )
-        rentIndexToBeReturnInt = rentIndexToBeReturnedTest.executeAllValidation()
+        rentIndexToBeReturnInt = rentIndexToBeReturnedTest.getInputAndRunValidationLoopUntilAllPassed()
 
         # find rent record object that user want to return.
         rentRecordObject = bookStore.rentRecordStorage.findRecordObjectById( unReturnedRentRecordIdList[ int( rentIndexToBeReturnInt ) - 1 ] )
@@ -288,17 +253,10 @@ def returnBook():
         rentDate = rentRecordObject.rentDate
 
         # get actual return date and validate it format and time of return.
-        actualReturnDateTest = TestValidInput()
-
-        # check actual return date format
-        actualReturnDateTest.addInputText( '(YYYY-M-D)Actual return Date:' )
-        actualReturnDateTest.addValidationFunction( checkValidDateStrFormat )
-        actualReturnDateTest.addErrorMessage( 'Error: incorrect date.' )
+        actualReturnDateTest = UserInputDateInTheFuture( '(YYYY-M-D)Actual return Date: ', rentDate )
 
         # check if expected return date is in the future compared to rent date.
-        actualReturnDateTest.addValidationFunction( checkLaterDate, [ str( rentDate ).split( ' ' )[ 0 ] ] )
-        actualReturnDateTest.addErrorMessage( 'Error: actual return date must be in the future.' )
-        actualReturnDate = actualReturnDateTest.executeAllValidation()
+        actualReturnDate = actualReturnDateTest.getInputAndRunValidationLoopUntilAllPassed()
         
         # return book to our store to calculate fine, rent price and revenue.
         bookStore.returnBook( unReturnedRentRecordIdList[ int( rentRecordCountInt ) - 1 ], datetime.strptime(actualReturnDate, '%Y-%m-%d') )
@@ -319,24 +277,14 @@ def viewTotalRevenueInDateRange():
     global bookStore, state
 
     # get and validate start date
-    startDateTest = TestValidInput()
-    startDateTest.addInputText( '(YYYY-M-D)Start Date:' )
-    startDateTest.addValidationFunction( checkValidDateStrFormat )
-    startDateTest.addErrorMessage( 'Error: incorrect date.' )
-    startDate = startDateTest.executeAllValidation()
+    startDateTest = UserInputDate( '(YYYY-M-D)Start Date: ' )
+    startDate = startDateTest.getInputAndRunValidationLoopUntilAllPassed()
 
     # get end date and validate it format and time of end date.
-    endDateTest = TestValidInput()
-
-    # check actual return date format
-    endDateTest.addInputText( '(YYYY-M-D)Actual return Date:' )
-    endDateTest.addValidationFunction( checkValidDateStrFormat )
-    endDateTest.addErrorMessage( 'Error: incorrect date.' )
+    endDateTest = UserInputDateInTheFuture( '(YYYY-M-D)Actual return Date: ', datetime.strptime(startDate, '%Y-%m-%d') )
 
     # check if expected return date is in the future compared to rent date.
-    endDateTest.addValidationFunction( checkLaterDate, [ startDate ] )
-    endDateTest.addErrorMessage( 'Error: End date must be in the future.' )
-    endDate = endDateTest.executeAllValidation()
+    endDate = endDateTest.getInputAndRunValidationLoopUntilAllPassed()
 
     # calculate revenue within this date range.
     revenueInThisDateRange = bookStore.calculateTotalRevenueInDateRange( datetime.strptime(startDate, '%Y-%m-%d'), datetime.strptime(endDate, '%Y-%m-%d') )

@@ -34,7 +34,7 @@ class RentRecordStorage:
         assert isinstance( renterNameStr, str ), 'renterNameStr must be type str but got {}[{}]'.format( renterNameStr, type( renterNameStr ) )
         assert isinstance( rentDate, date ), 'rentDate must be type date but got {}[{}]'.format( rentDate, type( rentDate ) )
         assert isinstance( expectedReturnDate, date ), 'expectedReturnDate must be type date but got {}[{}]'.format( expectedReturnDate, type( expectedReturnDate ) )
-        assert isinstance( rentedBookIdInt, date ), 'rentedBookIdInt must be type int but got {}[{}]'.format( rentedBookIdInt, type( rentedBookIdInt ) )
+        assert isinstance( rentedBookIdInt, int ), 'rentedBookIdInt must be type int but got {}[{}]'.format( rentedBookIdInt, type( rentedBookIdInt ) )
 
         # get current available id of rent record.
         rentRecordIdInt = len( self.rentRecordList )

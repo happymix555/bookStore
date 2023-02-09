@@ -28,14 +28,14 @@ class UserInput:
         # initial state = get user input
         state = 'getUserInput'
 
-        # number of validation passed counter
-        numberOfValidationPassed = 0
-
         # loop till input pass all the validation.
         while True:
         
             # initial state = get user input
             if state == 'getUserInput':
+
+                # number of validation passed counter
+                numberOfValidationPassed = 0
                     
                 # take input from user
                 userInput = input( self.outputTextForUser )
